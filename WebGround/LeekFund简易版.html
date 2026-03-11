@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>My LeekFund - 持久化排序版</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: #eee; padding: 20px; }
+        .container { max-width: 700px; margin: 0 auto; }
+        
+        /* 输入区样式 */
+        .input-group { margin-bottom: 20px; display: flex; gap: 10px; }
+        input { background: #333; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 4px; flex: 1; }
+        button { background: #1890ff; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #40a9ff; }
+        button.delete-btn { background: #444; padding: 2px 8px; font-size: 12px; }
+        button.delete-btn:hover { background: #ff4d4f; }
+
+        /* 表格样式 */
+        table { width: 100%; border-collapse: collapse; background: #252525; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        th, td { padding: 12px; text-align: center; border-bottom: 1px solid #333; }
+        th { background: #333; color: #888; cursor: pointer; }
+        .up { color: #ff4d4f; }
+        .down { color: #52c41a; }
+        .fund-name { text-align: left; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>基金实时监控 <small style="font-size: 12px; color: #666;">(数据自动本地保存)</small></h2>
+    
+    <div class="input-group">
+        <input type="text" id="fundInput" placeholder="输入6位基金代码 (如: 000001)">
+        <button onclick="addFund()">添加基金</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>代码</th>
+                <th style="text-align:left">名称</th>
+                <th>估值</th>
+                <th>涨跌幅</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="fund-body"></tbody>
+    </table>
+</div>
+
+<script>
+    // 1. 从 LocalStorage 初始化数据，如果没有则给个默认值
+    let fundList = JSON.parse(localStorage.getItem('my_funds')) || ['000001'];
+    let fundCache = {};
+
+    // 2. 添加基金函数
+    function addFund() {
+        const input = document.getElementById('fundInput');
+        const code = input.value.trim();
+        if (/^\d{6}$/.test(code)) {
+            if (!fundList.includes(code)) {
+                fundList.push(code);
+                saveAndRefresh();
+                input.value = '';
+            } else {
+                alert('该基金已在列表中');
+            }
+        } else {
+            alert('请输入正确的6位基金代码');
+        }
+    }
+
+    // 3. 删除基金函数
+    function removeFund(code) {
+        fundList = fundList.filter(item => item !== code);
+        delete fundCache[code];
+        saveAndRefresh();
+    }
+
+    // 4. 保存到本地并重新拉取数据
+    function saveAndRefresh() {
+        localStorage.setItem('my_funds', JSON.stringify(fundList));
+        refreshData();
+    }
+
+    // 5. JSONP 回调
+    window.jsonpgz = function(data) {
+        data.gszzl_num = parseFloat(data.gszzl);
+        fundCache[data.fundcode] = data;
+        renderTable();
+    };
+
+    // 6. 渲染并排序
+    function renderTable() {
+        const tbody = document.getElementById('fund-body');
+        const sortedList = Object.values(fundCache).sort((a, b) => b.gszzl_num - a.gszzl_num);
+
+        tbody.innerHTML = '';
+        sortedList.forEach(data => {
+            const isUp = data.gszzl_num >= 0;
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td>${data.fundcode}</td>
+                <td class="fund-name">${data.name}</td>
+                <td>${data.gsz}</td>
+                <td class="${isUp ? 'up' : 'down'}">${isUp ? '+' : ''}${data.gszzl}%</td>
+                <td><button class="delete-btn" onclick="removeFund('${data.fundcode}')">移除</button></td>
+            `;
+        });
+    }
+
+    // 7. 拉取数据逻辑
+    function refreshData() {
+        // 如果列表为空，清空缓存并重绘
+        if (fundList.length === 0) {
+            fundCache = {};
+            renderTable();
+            return;
+        }
+
+        fundList.forEach(code => {
+            const oldScript = document.getElementById(`script-${code}`);
+            if (oldScript) oldScript.remove();
+            const script = document.createElement('script');
+            script.id = `script-${code}`;
+            script.src = `https://fundgz.1234567.com.cn/js/${code}.js?rt=${Date.now()}`;
+            document.body.appendChild(script);
+        });
+    }
+
+    // 初始化运行
+    refreshData();
+    // 每 60 秒自动刷新
+    setInterval(refreshData, 60000);
+</script>
+
+</body>
+</html>

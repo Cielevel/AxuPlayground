@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha 擦除工具 (Canvas)</title>
+    <!-- 使用 Tailwind CSS 加快 UI 构建，无需本地安装 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 经典的透明背景棋盘格样式，方便观察 Alpha 通道 */
+        .checkerboard {
+            background-color: #fff;
+            background-image: 
+                linear-gradient(45deg, #ddd 25%, transparent 25%), 
+                linear-gradient(-45deg, #ddd 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #ddd 75%), 
+                linear-gradient(-45deg, transparent 75%, #ddd 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+        
+        /* 自定义笔刷光标样式 */
+        #brushCursor {
+            pointer-events: none; /* 确保光标不会阻挡鼠标事件 */
+            position: fixed;
+            border-radius: 50%;
+            border: 1.5px solid white;
+            box-shadow: 0 0 0 1px black, inset 0 0 0 1px black; /* 内外黑边，确保在任何背景都可见 */
+            transform: translate(-50%, -50%);
+            z-index: 50;
+            display: none;
+        }
+
+        /* 确保在移动设备上触摸画布时不会触发页面滚动 */
+        canvas {
+            cursor: none; /* 隐藏默认的十字光标 */
+            touch-action: none;
+            max-width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen p-6 font-sans flex flex-col items-center">
+
+    <div class="max-w-5xl w-full flex flex-col gap-6">
+        
+        <!-- 头部与工具栏 -->
+        <div class="bg-gray-800 p-4 rounded-xl shadow-lg border border-gray-700 flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <h1 class="text-xl font-bold text-blue-400">Alpha 擦除工具</h1>
+                <p class="text-xs text-gray-400 mt-1">HTML5 Canvas Destination-Out</p>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <!-- 笔刷大小控制 -->
+                <div class="flex items-center gap-3 bg-gray-900 px-3 py-2 rounded-lg border border-gray-700">
+                    <span class="text-gray-400 text-sm">笔刷大小</span>
+                    <input type="range" id="brushSize" min="1" max="200" value="30" class="w-32 accent-blue-500 cursor-pointer">
+                    <span id="brushSizeDisplay" class="text-sm text-gray-400 w-10 text-right">30px</span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <label class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors text-sm font-medium">
+                        上传图片
+                        <input type="file" id="uploadInput" accept="image/*" class="hidden">
+                    </label>
+
+                    <button id="resetBtn" disabled class="bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium">
+                        重置
+                    </button>
+
+                    <button id="downloadBtn" disabled class="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium">
+                        保存 PNG
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 画布工作区 -->
+        <div class="flex-1 bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-2xl relative flex items-center justify-center min-h-[60vh] p-4">
+            
+            <div id="emptyState" class="text-gray-500 flex flex-col items-center gap-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-50"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                <p>点击上方按钮上传图片开始编辑</p>
+            </div>
+
+            <!-- 画布外层包裹透明网格背景 -->
+            <div id="canvasContainer" class="relative rounded shadow-md border border-gray-600 overflow-hidden checkerboard hidden">
+                <canvas id="drawingCanvas"></canvas>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- 自定义笔刷的光标元素 -->
+    <div id="brushCursor"></div>
+
+    <script>
+        const uploadInput = document.getElementById('uploadInput');
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        const canvasContainer = document.getElementById('canvasContainer');
+        const emptyState = document.getElementById('emptyState');
+        const brushSizeInput = document.getElementById('brushSize');
+        const brushSizeDisplay = document.getElementById('brushSizeDisplay');
+        const resetBtn = document.getElementById('resetBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const brushCursor = document.getElementById('brushCursor');
+
+        let originalImage = null;
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+
+        // 更新笔刷大小显示
+        brushSizeInput.addEventListener('input', (e) => {
+            brushSizeDisplay.textContent = `${e.target.value}px`;
+        });
+
+        // 处理图片上传
+        uploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    originalImage = img;
+                    initCanvas(img);
+                    
+                    // 切换 UI 状态
+                    emptyState.classList.add('hidden');
+                    canvasContainer.classList.remove('hidden');
+                    resetBtn.disabled = false;
+                    downloadBtn.disabled = false;
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // 初始化画布并绘制原图
+        function initCanvas(img) {
+            // 设置 Canvas 的实际像素尺寸为图片的原始尺寸
+            canvas.width = img.width;
+            canvas.height = img.height;
+
+            // 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 恢复正常的混合模式来绘制底图
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.drawImage(img, 0, 0);
+
+            // 【核心逻辑】：将混合模式设置为 destination-out
+            // 在此模式下，后续绘制的任何内容，都会“扣掉”目标位置的像素，使其变成 rgba(0,0,0,0)
+            ctx.globalCompositeOperation = 'destination-out';
+        }
+
+        // 重置按钮
+        resetBtn.addEventListener('click', () => {
+            if (originalImage) {
+                initCanvas(originalImage);
+            }
+        });
+
+        // 导出 PNG
+        downloadBtn.addEventListener('click', () => {
+            if (!originalImage) return;
+            const dataUrl = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = 'alpha_edited_texture.png';
+            link.href = dataUrl;
+            link.click();
+        });
+
+        // 获取鼠标/触摸点在 Canvas 内部的实际像素坐标
+        // （由于 CSS 可能缩放了 Canvas，我们需要将屏幕坐标映射回实际像素坐标）
+        function getCoordinates(e) {
+            const rect = canvas.getBoundingClientRect();
+            
+            // 兼容鼠标和触摸事件
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            // 计算缩放比例
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+
+        // 开始绘制
+        function startPosition(e) {
+            if (!originalImage) return;
+            e.preventDefault();
+            isDrawing = true;
+            const coords = getCoordinates(e);
+            lastX = coords.x;
+            lastY = coords.y;
+            
+            // 处理单次点击（不拖动）的情况
+            drawStroke(lastX, lastY, coords.x, coords.y);
+        }
+
+        // 结束绘制
+        function endPosition() {
+            isDrawing = false;
+        }
+
+        // 绘制过程
+        function draw(e) {
+            if (!isDrawing || !originalImage) return;
+            e.preventDefault();
+            
+            const coords = getCoordinates(e);
+            drawStroke(lastX, lastY, coords.x, coords.y);
+            
+            lastX = coords.x;
+            lastY = coords.y;
+        }
+
+        // 绘制线条逻辑
+        function drawStroke(x1, y1, x2, y2) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            
+            // 设置画笔样式
+            ctx.lineWidth = brushSizeInput.value;
+            ctx.lineCap = 'round'; // 圆形笔触
+            ctx.lineJoin = 'round';
+            // 颜色无所谓，因为在 destination-out 模式下，只要 Alpha > 0 就会产生擦除效果
+            ctx.strokeStyle = 'rgba(0,0,0,1)'; 
+            
+            ctx.stroke();
+            ctx.closePath();
+        }
+
+        // 更新自定义笔刷光标（处理视觉缩放映射）
+        function updateBrushCursor(e) {
+            if (!originalImage) return;
+            const rect = canvas.getBoundingClientRect();
+            
+            // 计算因 CSS max-width/object-fit 导致的实际显示比例
+            const scaleX = rect.width / canvas.width;
+            const visualSize = brushSizeInput.value * scaleX;
+            
+            brushCursor.style.width = `${visualSize}px`;
+            brushCursor.style.height = `${visualSize}px`;
+            
+            // 使用屏幕坐标系
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            brushCursor.style.left = `${clientX}px`;
+            brushCursor.style.top = `${clientY}px`;
+        }
+
+        // 绑定鼠标事件
+        canvas.addEventListener('mousedown', startPosition);
+        canvas.addEventListener('mouseup', endPosition);
+        canvas.addEventListener('mousemove', (e) => {
+            draw(e);
+            updateBrushCursor(e);
+        });
+        canvas.addEventListener('mouseenter', (e) => {
+            if (originalImage) brushCursor.style.display = 'block';
+            updateBrushCursor(e);
+        });
+        canvas.addEventListener('mouseleave', () => {
+            endPosition();
+            brushCursor.style.display = 'none';
+        });
+
+        // 绑定触摸事件 (支持移动端/平板)
+        canvas.addEventListener('touchstart', startPosition, { passive: false });
+        canvas.addEventListener('touchend', endPosition);
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        canvas.addEventListener('touchcancel', endPosition);
+
+    </script>
+</body>
+</html>
