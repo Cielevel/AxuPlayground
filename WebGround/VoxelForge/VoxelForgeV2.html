@@ -18,87 +18,50 @@
         }
 
         :root {
-            --bg-primary: #07070b;
-            --bg-secondary: #0d0d14;
-            --bg-tertiary: #13131f;
-
-            /* Glassmorphism Adjustments */
-            --bg-card: rgba(13, 13, 20, 0.45);
-            --bg-glass: rgba(13, 13, 20, 0.25);
-            --border-color: rgba(255, 255, 255, 0.08);
-            --border-active: rgba(0, 240, 255, 0.5);
-            /* Cyan */
-
-            --text-primary: #f8fafc;
-            --text-secondary: #cbd5e1;
-            --text-muted: #64748b;
-
-            /* AI Cyan-Purple Accent */
-            --accent-primary: #00f0ff;
-            --accent-hover: #7b2cbf;
-            --accent-glow: rgba(0, 240, 255, 0.4);
-            --accent-gradient: linear-gradient(135deg, #00f0ff 0%, #7b2cbf 100%);
-
-            --success: #10b981;
+            --ui-bg: rgba(255, 255, 255, 0.78);
+            --ui-bg-strong: rgba(255, 255, 255, 0.92);
+            --ui-glass: rgba(255, 255, 255, 0.6);
+            --ui-border: rgba(15, 23, 42, 0.08);
+            --ui-border-strong: rgba(15, 23, 42, 0.16);
+            --ui-shadow: 0 30px 70px -35px rgba(15, 23, 42, 0.55);
+            --ui-shadow-soft: 0 20px 50px -30px rgba(15, 23, 42, 0.4);
+            --accent: #007aff;
+            --accent-strong: #0057d8;
+            --accent-glow: rgba(0, 122, 255, 0.2);
+            --success: #16a34a;
             --warning: #f59e0b;
             --error: #ef4444;
-
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
             --radius: 14px;
-            --radius-lg: 20px;
-            --radius-xl: 24px;
-
-            /* Thicker, softer shadow for 3D depth */
-            --shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.05);
-            --transition: 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        /* Ambient glowing animations */
-        @keyframes shimmer {
-            0% {
-                background-position: 200% center;
-            }
-
-            100% {
-                background-position: -200% center;
-            }
-        }
-
-        @keyframes pulse-glow {
-
-            0%,
-            100% {
-                box-shadow: 0 0 15px var(--accent-glow), inset 0 0 10px rgba(0, 240, 255, 0.1);
-            }
-
-            50% {
-                box-shadow: 0 0 35px var(--accent-glow), inset 0 0 20px rgba(0, 240, 255, 0.2);
-            }
-        }
-
-        @keyframes floating {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-3px);
-            }
+            --radius-lg: 18px;
+            --radius-xl: 22px;
+            --transition: 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+            --bg-card: var(--ui-bg);
+            --bg-glass: var(--ui-glass);
+            --border-color: var(--ui-border);
+            --border-active: rgba(0, 122, 255, 0.45);
+            --accent-primary: var(--accent);
+            --accent-hover: var(--accent-strong);
+            --accent-gradient: linear-gradient(135deg, #0a84ff 0%, #2d7cf7 100%);
+            --shadow: var(--ui-shadow);
+            --bg-tertiary: rgba(15, 23, 42, 0.12);
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-primary);
+            font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+            background: #eef2f6;
             color: var(--text-primary);
             overflow: hidden;
             height: 100vh;
             width: 100vw;
-            /* Subtle radial ambient light */
-            background-image: radial-gradient(circle at 50% -20%, rgba(123, 44, 191, 0.15) 0%, transparent 60%);
+            background-image:
+                radial-gradient(1200px 600px at 15% -10%, rgba(255, 255, 255, 0.8), transparent 60%),
+                radial-gradient(900px 500px at 85% 0%, rgba(99, 102, 241, 0.1), transparent 55%),
+                linear-gradient(180deg, #f6f7fb 0%, #e9edf3 100%);
         }
 
-        /* 3D Canvas Container */
         #canvas-container {
             position: absolute;
             inset: 0;
@@ -108,173 +71,156 @@
         /* ========== Top Bar ========== */
         .top-bar {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
+            top: 16px;
+            left: 20px;
+            right: 20px;
+            z-index: 120;
+            pointer-events: none;
+        }
+
+        .top-bar-inner {
+            pointer-events: auto;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 16px 24px;
-            background: linear-gradient(180deg, rgba(7, 7, 11, 0.8) 0%, rgba(7, 7, 11, 0) 100%);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            pointer-events: none;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            gap: 16px;
+            padding: 12px 16px;
+            background: var(--ui-bg);
+            border: 1px solid var(--ui-border);
+            border-radius: 16px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: var(--ui-shadow-soft);
         }
 
-        .top-bar>* {
-            pointer-events: auto;
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 12px;
-            animation: floating 4s ease-in-out infinite;
+            gap: 10px;
         }
 
         .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--accent-gradient);
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(145deg, #101827, #2c3447);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            box-shadow: 0 0 25px var(--accent-glow), inset 0 2px 4px rgba(255, 255, 255, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 18px;
+            color: #fff;
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2), 0 8px 20px rgba(15, 23, 42, 0.25);
         }
 
         .logo-text {
-            font-weight: 900;
-            font-size: 22px;
-            background: linear-gradient(to right, #ffffff, #a5b4fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: -0.3px;
         }
 
         .voxel-badge {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 16px;
-            background: var(--bg-glass);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border-color);
-            border-radius: 30px;
-            font-size: 13px;
-            font-weight: 700;
+            padding: 6px 12px;
+            background: rgba(15, 23, 42, 0.04);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
             color: var(--text-secondary);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            transition: var(--transition);
-        }
-
-        .voxel-badge:hover {
-            border-color: rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.05);
         }
 
         .voxel-badge .count {
-            color: #818cf8;
-            font-size: 16px;
-            font-weight: 900;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 700;
             font-variant-numeric: tabular-nums;
         }
 
         .top-actions {
             display: flex;
+            align-items: center;
             gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
 
-        /* ========== Icon Buttons ========== */
         .icon-btn {
-            width: 44px;
-            height: 44px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            background: var(--bg-glass);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            min-width: 40px;
+            height: 40px;
+            padding: 0 12px;
+            border: 1px solid var(--ui-border);
+            border-radius: 12px;
+            background: var(--ui-glass);
             color: var(--text-secondary);
             cursor: pointer;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             transition: all var(--transition);
-            font-size: 18px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .icon-btn::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-            opacity: 0;
-            transition: opacity var(--transition);
+            font-size: 16px;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
         }
 
         .icon-btn:hover {
-            border-color: rgba(255, 255, 255, 0.2);
+            border-color: var(--ui-border-strong);
             color: var(--text-primary);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
-        }
-
-        .icon-btn:hover::before {
-            opacity: 1;
+            transform: translateY(-1px);
         }
 
         .icon-btn.active {
-            border-color: var(--accent-primary);
-            color: var(--accent-primary);
-            background: rgba(0, 240, 255, 0.05);
-            box-shadow: 0 0 20px var(--accent-glow), inset 0 0 10px rgba(0, 240, 255, 0.1);
+            border-color: rgba(0, 122, 255, 0.4);
+            color: var(--accent);
+            background: rgba(0, 122, 255, 0.08);
+            box-shadow: 0 10px 20px rgba(0, 122, 255, 0.18);
         }
 
         /* ========== Settings Panel ========== */
         .settings-panel {
             position: fixed;
-            top: 72px;
+            top: 88px;
             left: 20px;
             bottom: 20px;
-            width: 380px;
+            width: 360px;
             z-index: 200;
-            background: var(--bg-card);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--border-color);
+            background: var(--ui-bg-strong);
+            border: 1px solid var(--ui-border);
             border-radius: var(--radius-xl);
             display: flex;
             flex-direction: column;
-            box-shadow: var(--shadow);
+            box-shadow: var(--ui-shadow);
             transform: translateX(-420px);
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
             overflow: hidden;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
         }
 
         .settings-panel.open {
             transform: translateX(0);
+            opacity: 1;
         }
 
         .panel-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border-color);
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--ui-border);
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
         .panel-header h3 {
-            font-size: 15px;
-            font-weight: 800;
-            letter-spacing: -0.3px;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
         }
 
         .panel-close {
@@ -282,24 +228,24 @@
             height: 28px;
             border: none;
             border-radius: 8px;
-            background: rgba(239, 68, 68, 0.15);
+            background: rgba(239, 68, 68, 0.1);
             color: #ef4444;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 12px;
             transition: all var(--transition);
         }
 
         .panel-close:hover {
-            background: rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.2);
         }
 
         .panel-body {
             flex: 1;
             overflow-y: auto;
-            padding: 16px 20px;
+            padding: 16px 18px;
             display: flex;
             flex-direction: column;
             gap: 16px;
@@ -309,12 +255,8 @@
             width: 4px;
         }
 
-        .panel-body::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
         .panel-body::-webkit-scrollbar-thumb {
-            background: var(--border-color);
+            background: rgba(15, 23, 42, 0.18);
             border-radius: 4px;
         }
 
@@ -323,15 +265,15 @@
             display: flex;
             gap: 4px;
             padding: 4px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: var(--radius);
+            background: rgba(15, 23, 42, 0.06);
+            border-radius: 12px;
         }
 
         .provider-tab {
             flex: 1;
             padding: 8px 4px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             background: transparent;
             color: var(--text-muted);
             font-size: 11px;
@@ -339,7 +281,7 @@
             cursor: pointer;
             transition: all var(--transition);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
         }
 
         .provider-tab:hover {
@@ -347,9 +289,9 @@
         }
 
         .provider-tab.active {
-            background: var(--accent-primary);
+            background: #0f172a;
             color: #fff;
-            box-shadow: 0 0 12px var(--accent-glow);
+            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.2);
         }
 
         /* Form Groups */
@@ -364,16 +306,16 @@
             font-weight: 700;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.8px;
+            letter-spacing: 0.6px;
         }
 
         .form-input,
         .form-select {
             width: 100%;
-            padding: 10px 14px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            border-radius: 12px;
             color: var(--text-primary);
             font-size: 13px;
             font-family: inherit;
@@ -384,8 +326,8 @@
 
         .form-input:focus,
         .form-select:focus {
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px var(--accent-glow);
+            border-color: rgba(0, 122, 255, 0.5);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
         }
 
         .form-input::placeholder {
@@ -398,7 +340,7 @@
         }
 
         .form-select option {
-            background: var(--bg-secondary);
+            background: #fff;
             color: var(--text-primary);
         }
 
@@ -407,7 +349,7 @@
             -webkit-appearance: none;
             width: 100%;
             height: 6px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(15, 23, 42, 0.08);
             border-radius: 4px;
             outline: none;
             transition: all var(--transition);
@@ -419,15 +361,14 @@
             width: 16px;
             height: 16px;
             border-radius: 50%;
-            background: var(--accent-primary);
+            background: var(--accent);
             cursor: pointer;
-            box-shadow: 0 0 10px var(--accent-glow);
+            box-shadow: 0 0 0 6px rgba(0, 122, 255, 0.15);
             transition: transform var(--transition);
         }
 
         .form-slider::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+            transform: scale(1.05);
         }
 
         .input-wrapper {
@@ -437,11 +378,8 @@
         /* Drag and Drop Overlay */
         .drop-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(7, 7, 11, 0.85);
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
             backdrop-filter: blur(8px);
             z-index: 9999;
             display: flex;
@@ -458,15 +396,15 @@
         }
 
         .drop-message {
-            color: var(--text-primary);
-            font-size: 24px;
+            color: #fff;
+            font-size: 20px;
             font-weight: 600;
             text-align: center;
-            padding: 40px;
-            border: 2px dashed var(--accent-primary);
+            padding: 36px;
+            border: 1px dashed rgba(255, 255, 255, 0.5);
             border-radius: 16px;
-            background: rgba(0, 240, 255, 0.05);
-            box-shadow: 0 0 30px rgba(0, 240, 255, 0.1);
+            background: rgba(15, 23, 42, 0.6);
+            box-shadow: 0 30px 60px rgba(15, 23, 42, 0.4);
         }
 
         .input-toggle {
@@ -478,8 +416,8 @@
             height: 28px;
             border: none;
             border-radius: 6px;
-            background: rgba(99, 102, 241, 0.15);
-            color: var(--accent-primary);
+            background: rgba(0, 122, 255, 0.12);
+            color: var(--accent);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -489,7 +427,7 @@
         }
 
         .input-toggle:hover {
-            background: rgba(99, 102, 241, 0.3);
+            background: rgba(0, 122, 255, 0.2);
         }
 
         .status-dot {
@@ -502,8 +440,7 @@
 
         .status-dot.ok {
             background: var(--success);
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
-            animation: pulse-glow 2s infinite;
+            box-shadow: 0 0 8px rgba(22, 163, 74, 0.35);
         }
 
         .status-dot.empty {
@@ -524,33 +461,33 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 100;
-            width: min(680px, calc(100% - 40px));
+            z-index: 110;
+            width: min(720px, calc(100% - 40px));
         }
 
         .prompt-container {
             display: flex;
             align-items: flex-end;
             gap: 12px;
-            padding: 12px;
-            background: var(--bg-card);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow), 0 0 20px rgba(0, 240, 255, 0.05);
+            padding: 12px 14px;
+            background: var(--ui-bg);
+            border: 1px solid var(--ui-border);
+            border-radius: 20px;
+            box-shadow: var(--ui-shadow-soft);
             transition: all var(--transition);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
         }
 
         .prompt-container:focus-within {
-            border-color: var(--border-active);
-            box-shadow: var(--shadow), 0 0 30px var(--accent-glow), inset 0 0 15px rgba(0, 240, 255, 0.05);
-            transform: translateY(-2px);
+            border-color: rgba(0, 122, 255, 0.4);
+            box-shadow: 0 30px 60px -30px rgba(0, 122, 255, 0.35);
+            transform: translateY(-1px);
         }
 
         .prompt-input {
             flex: 1;
-            padding: 10px 14px;
+            padding: 10px 12px;
             background: transparent;
             border: none;
             color: var(--text-primary);
@@ -570,54 +507,46 @@
 
         .generate-btn {
             flex-shrink: 0;
-            padding: 14px 28px;
-            background: var(--accent-gradient);
-            background-size: 200% auto;
+            padding: 12px 22px;
+            background: linear-gradient(135deg, #0a84ff, #2d7cf7);
             border: none;
-            border-radius: var(--radius);
+            border-radius: 14px;
             color: #fff;
-            font-size: 15px;
-            font-weight: 800;
+            font-size: 14px;
+            font-weight: 700;
             font-family: inherit;
             cursor: pointer;
             transition: all var(--transition);
             display: flex;
             align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 20px var(--accent-glow);
-            animation: shimmer 5s linear infinite;
+            gap: 8px;
+            box-shadow: 0 12px 26px rgba(0, 122, 255, 0.3);
         }
 
         .generate-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 240, 255, 0.6);
-            animation-duration: 2s;
-        }
-
-        .generate-btn:active:not(:disabled) {
-            transform: translateY(0);
+            transform: translateY(-1px);
+            box-shadow: 0 16px 30px rgba(0, 122, 255, 0.35);
         }
 
         .generate-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            animation: none;
             box-shadow: none;
-            background: var(--bg-tertiary);
-            color: var(--text-muted);
+            background: rgba(15, 23, 42, 0.2);
+            color: rgba(15, 23, 42, 0.4);
         }
 
         .provider-indicator {
             display: flex;
             align-items: center;
             gap: 6px;
-            padding: 6px 12px;
+            padding: 6px 10px;
             font-size: 11px;
             font-weight: 700;
-            color: var(--text-muted);
+            color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-right: 1px solid var(--border-color);
+            letter-spacing: 0.4px;
+            border-right: 1px solid var(--ui-border);
             white-space: nowrap;
             cursor: pointer;
             transition: color var(--transition);
@@ -625,7 +554,7 @@
         }
 
         .provider-indicator:hover {
-            color: var(--accent-hover);
+            color: var(--accent);
         }
 
         /* ========== Loading Indicator (non-blocking) ========== */
@@ -633,11 +562,12 @@
             display: none;
             align-items: center;
             gap: 10px;
-            padding: 8px 16px;
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            border-radius: var(--radius);
-            margin-bottom: 8px;
+            padding: 8px 12px;
+            background: rgba(15, 23, 42, 0.75);
+            color: #fff;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 12px 26px rgba(15, 23, 42, 0.4);
         }
 
         .generating-indicator.active {
@@ -648,8 +578,8 @@
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            border: 2px solid var(--border-color);
-            border-top-color: var(--accent-primary);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #fff;
             animation: spin 0.8s linear infinite;
             flex-shrink: 0;
         }
@@ -657,7 +587,7 @@
         .generating-indicator .gen-text {
             font-size: 12px;
             font-weight: 600;
-            color: var(--accent-hover);
+            color: #fff;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -669,15 +599,13 @@
             }
         }
 
-        @keyframes pulse {
-
+        @keyframes floating {
             0%,
             100% {
-                opacity: 0.5;
+                transform: translateY(0);
             }
-
             50% {
-                opacity: 1;
+                transform: translateY(-2px);
             }
         }
 
@@ -695,23 +623,23 @@
             position: fixed;
             bottom: 100px;
             right: 20px;
-            width: 440px;
+            width: 420px;
             max-height: 50vh;
             min-height: 120px;
             z-index: 150;
-            background: var(--bg-card);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--border-color);
+            background: var(--ui-bg-strong);
+            border: 1px solid var(--ui-border);
             border-radius: var(--radius-lg);
             display: flex;
             flex-direction: column;
-            box-shadow: var(--shadow), inset 0 0 30px rgba(0, 0, 0, 0.8);
+            box-shadow: var(--ui-shadow);
             transform: translateY(20px);
             opacity: 0;
             pointer-events: none;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             overflow: hidden;
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
         }
 
         .console-panel.open {
@@ -725,7 +653,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 10px 14px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom: 1px solid var(--ui-border);
             flex-shrink: 0;
         }
 
@@ -740,7 +668,7 @@
             font-weight: 700;
             color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 0.8px;
+            letter-spacing: 0.6px;
         }
 
         .console-dot {
@@ -751,8 +679,8 @@
         }
 
         .console-dot.live {
-            background: #10b981;
-            box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+            background: var(--success);
+            box-shadow: 0 0 6px rgba(22, 163, 74, 0.4);
             animation: pulse 1.5s ease-in-out infinite;
         }
 
@@ -778,34 +706,30 @@
 
         .console-action-btn:hover {
             color: var(--text-primary);
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(15, 23, 42, 0.06);
         }
 
         .console-body {
             flex: 1;
             overflow-y: auto;
-            padding: 8px 14px;
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            padding: 10px 14px;
+            font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
             font-size: 11px;
             line-height: 1.6;
+            color: var(--text-secondary);
         }
 
         .console-body::-webkit-scrollbar {
             width: 4px;
         }
 
-        .console-body::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
         .console-body::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(15, 23, 42, 0.2);
             border-radius: 4px;
         }
 
         .log-line {
             padding: 1px 0;
-            color: var(--text-secondary);
             word-break: break-all;
         }
 
@@ -816,33 +740,33 @@
         }
 
         .log-line.info {
-            color: #93c5fd;
+            color: #2563eb;
         }
 
         .log-line.success {
-            color: #6ee7b7;
+            color: #16a34a;
         }
 
         .log-line.error {
-            color: #fca5a5;
+            color: #dc2626;
         }
 
         .log-line.warn {
-            color: #fcd34d;
+            color: #d97706;
         }
 
         .log-line.data {
-            color: #c4b5fd;
+            color: #4f46e5;
             font-size: 10px;
         }
 
         /* ========== API Test Button ========== */
         .test-btn {
-            padding: 8px 16px;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: var(--radius);
-            background: rgba(16, 185, 129, 0.1);
-            color: #6ee7b7;
+            padding: 8px 14px;
+            border: 1px solid rgba(22, 163, 74, 0.3);
+            border-radius: 12px;
+            background: rgba(22, 163, 74, 0.08);
+            color: #15803d;
             font-size: 12px;
             font-weight: 700;
             font-family: inherit;
@@ -854,20 +778,13 @@
         }
 
         .test-btn:hover {
-            background: rgba(16, 185, 129, 0.2);
-            border-color: rgba(16, 185, 129, 0.5);
+            background: rgba(22, 163, 74, 0.16);
+            border-color: rgba(22, 163, 74, 0.45);
         }
 
         .test-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-        }
-
-        .test-btn.testing {
-            color: var(--accent-primary);
-            border-color: var(--border-active);
-            background: rgba(0, 240, 255, 0.1);
-            animation: floating 1s infinite alternate;
         }
 
         .test-result {
@@ -878,18 +795,45 @@
         }
 
         .test-result.ok {
-            color: #6ee7b7;
+            color: #15803d;
         }
 
         .test-result.fail {
-            color: #fca5a5;
+            color: #dc2626;
+        }
+
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 0.4;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .top-bar {
+                left: 12px;
+                right: 12px;
+            }
+
+            .settings-panel {
+                width: calc(100% - 24px);
+                left: 12px;
+                right: 12px;
+            }
         }
 
         @media (max-width: 768px) {
             .console-panel {
-                width: calc(100% - 32px);
-                left: 16px;
-                right: 16px;
+                width: calc(100% - 24px);
+                left: 12px;
+                right: 12px;
+            }
+
+            .bottom-bar {
+                width: calc(100% - 24px);
             }
         }
 
@@ -901,7 +845,7 @@
             display: none;
             align-items: center;
             justify-content: center;
-            background: rgba(15, 15, 23, 0.75);
+            background: rgba(15, 23, 42, 0.45);
             backdrop-filter: blur(6px);
         }
 
@@ -910,17 +854,17 @@
         }
 
         .modal-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--border-color);
+            background: var(--ui-bg-strong);
+            border: 1px solid var(--ui-border);
             border-radius: var(--radius-xl);
-            width: min(600px, calc(100% - 40px));
+            width: min(640px, calc(100% - 40px));
             max-height: 80vh;
             display: flex;
             flex-direction: column;
-            box-shadow: var(--shadow), 0 0 50px rgba(0, 0, 0, 0.6);
+            box-shadow: var(--ui-shadow);
             overflow: hidden;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
         }
 
         .modal-header {
@@ -928,12 +872,12 @@
             align-items: center;
             justify-content: space-between;
             padding: 16px 20px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--ui-border);
         }
 
         .modal-header h3 {
             font-size: 15px;
-            font-weight: 800;
+            font-weight: 700;
         }
 
         .modal-body {
@@ -946,32 +890,34 @@
             width: 100%;
             min-height: 300px;
             padding: 14px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            border-radius: 12px;
             color: var(--text-primary);
             font-size: 12px;
-            font-family: 'Consolas', 'Monaco', monospace;
+            font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
             outline: none;
             resize: vertical;
         }
 
         .modal-body textarea:focus {
-            border-color: var(--accent-primary);
+            border-color: rgba(0, 122, 255, 0.5);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
         }
 
         .modal-footer {
             padding: 12px 20px;
-            border-top: 1px solid var(--border-color);
+            border-top: 1px solid var(--ui-border);
             display: flex;
             justify-content: flex-end;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         .modal-btn {
-            padding: 8px 20px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
+            padding: 8px 18px;
+            border: 1px solid var(--ui-border);
+            border-radius: 12px;
             background: transparent;
             color: var(--text-secondary);
             font-size: 13px;
@@ -982,24 +928,24 @@
         }
 
         .modal-btn:hover {
-            border-color: var(--text-secondary);
+            border-color: var(--ui-border-strong);
             color: var(--text-primary);
         }
 
         .modal-btn.primary {
-            background: var(--accent-primary);
-            border-color: var(--accent-primary);
+            background: var(--accent);
+            border-color: var(--accent);
             color: #fff;
         }
 
         .modal-btn.primary:hover {
-            background: var(--accent-hover);
+            background: var(--accent-strong);
         }
 
         /* ========== Toast ========== */
         .toast-container {
             position: fixed;
-            top: 72px;
+            top: 92px;
             right: 20px;
             z-index: 700;
             display: flex;
@@ -1008,16 +954,14 @@
         }
 
         .toast {
-            padding: 14px 20px;
-            background: var(--bg-glass);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
+            padding: 12px 16px;
+            background: var(--ui-bg-strong);
+            border: 1px solid var(--ui-border);
+            border-radius: 12px;
             font-size: 13px;
             font-weight: 600;
             color: var(--text-primary);
-            box-shadow: var(--shadow);
+            box-shadow: var(--ui-shadow-soft);
             animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1), fadeOut 0.3s ease 2.7s forwards;
             max-width: 360px;
             display: flex;
@@ -1026,18 +970,18 @@
         }
 
         .toast.error {
-            border-color: rgba(239, 68, 68, 0.4);
-            color: #fca5a5;
+            border-color: rgba(239, 68, 68, 0.35);
+            color: #b91c1c;
         }
 
         .toast.success {
-            border-color: rgba(16, 185, 129, 0.4);
-            color: #6ee7b7;
+            border-color: rgba(22, 163, 74, 0.35);
+            color: #15803d;
         }
 
         @keyframes slideIn {
             from {
-                transform: translateX(40px);
+                transform: translateY(-8px);
                 opacity: 0;
             }
 
@@ -1050,20 +994,7 @@
         @keyframes fadeOut {
             to {
                 opacity: 0;
-                transform: translateX(40px);
-            }
-        }
-
-        /* ========== Responsive ========== */
-        @media (max-width: 768px) {
-            .settings-panel {
-                width: calc(100% - 32px);
-                left: 16px;
-                right: 16px;
-            }
-
-            .bottom-bar {
-                width: calc(100% - 20px);
+                transform: translateY(-8px);
             }
         }
     </style>
@@ -1077,29 +1008,30 @@
 
     <!-- Top Bar -->
     <div class="top-bar">
-        <div style="display:flex;align-items:center;gap:12px;">
-            <div class="logo">
-                <div class="logo-icon">🧊</div>
-                <span class="logo-text">VoxelForge</span>
+        <div class="top-bar-inner">
+            <div class="brand">
+                <div class="logo">
+                    <div class="logo-icon">VF</div>
+                    <span class="logo-text">VoxelForge</span>
+                </div>
+                <div class="voxel-badge">
+                    <span>Voxels</span>
+                    <span class="count" id="voxel-count">0</span>
+                </div>
             </div>
-            <div class="voxel-badge">
-                <span>🧱</span>
-                <span>Voxels</span>
-                <span class="count" id="voxel-count">0</span>
+            <div class="top-actions">
+                <button class="icon-btn" id="btn-settings" title="设置">⚙️</button>
+                <button class="icon-btn" id="btn-console" title="控制台">📋</button>
+                <button class="icon-btn" id="btn-rotate" title="切换旋转">⟳</button>
+                <button class="icon-btn" id="btn-export" title="导出 JSON">📤</button>
+                <button class="icon-btn" id="btn-export-vox" title="导出 .vox 文件">🎲</button>
+                <button class="icon-btn" id="btn-export-obj" title="导出 .obj 文件">🧊</button>
+                <button class="icon-btn" id="btn-export-obj-opt" title="导出 表面精简 .obj 文件">🧊</button>
+                <button class="icon-btn" id="btn-export-glb" title="导出 .glb 文件">🟡</button>
+                <button class="icon-btn" id="btn-import-file" title="选择 JSON 文件">📁</button>
+                <button class="icon-btn" id="btn-import" title="粘贴 JSON">📥</button>
+                <button class="icon-btn" id="btn-clear" title="清空场景">🗑️</button>
             </div>
-        </div>
-        <div class="top-actions">
-            <button class="icon-btn" id="btn-settings" title="设置">⚙️</button>
-            <button class="icon-btn" id="btn-console" title="控制台">📋</button>
-            <button class="icon-btn" id="btn-rotate" title="切换旋转">⟳</button>
-            <button class="icon-btn" id="btn-export" title="导出 JSON">📤</button>
-            <button class="icon-btn" id="btn-export-vox" title="导出 .vox 文件">🎲</button>
-            <button class="icon-btn" id="btn-export-obj" title="导出 .obj 文件">🧊</button>
-            <button class="icon-btn" id="btn-export-obj-opt" title="导出 表面精简 .obj 文件">🧊</button>
-            <button class="icon-btn" id="btn-export-glb" title="导出 .glb 文件">🟡</button>
-            <button class="icon-btn" id="btn-import-file" title="选择 JSON 文件">📁</button>
-            <button class="icon-btn" id="btn-import" title="粘贴 JSON">📥</button>
-            <button class="icon-btn" id="btn-clear" title="清空场景">🗑️</button>
         </div>
     </div>
 
@@ -1764,8 +1696,10 @@
             openai: {
                 name: 'OpenAI',
                 defaultBaseUrl: 'https://api.openai.com',
-                buildRequest(apiKey, model, prompt, baseUrl, complexity, maxSize) {
+                buildRequest(stage, apiKey, model, prompt, extraData, baseUrl, complexity, maxSize) {
                     const url = `${baseUrl || this.defaultBaseUrl}/v1/chat/completions`;
+                    const sysPrompt = stage === 1 ? buildShapeSystemPrompt(complexity, maxSize) : buildColorSystemPrompt(complexity, maxSize);
+                    const userPrompt = stage === 1 ? buildShapeUserPrompt(prompt) : buildColorUserPrompt(prompt, extraData);
                     return {
                         url,
                         headers: {
@@ -1775,8 +1709,8 @@
                         body: {
                             model,
                             messages: [
-                                { role: 'system', content: buildSystemPrompt(complexity, maxSize) },
-                                { role: 'user', content: buildUserPrompt(prompt) }
+                                { role: 'system', content: sysPrompt },
+                                { role: 'user', content: userPrompt }
                             ],
                             temperature: 0.7,
                             response_format: { type: 'json_object' }
@@ -1785,14 +1719,16 @@
                 },
                 parseResponse(data) {
                     const text = data.choices?.[0]?.message?.content || '';
-                    return extractJsonArray(text);
+                    return extractJsonObject(text);
                 }
             },
             claude: {
                 name: 'Claude',
                 defaultBaseUrl: 'https://api.anthropic.com',
-                buildRequest(apiKey, model, prompt, baseUrl, complexity, maxSize) {
+                buildRequest(stage, apiKey, model, prompt, extraData, baseUrl, complexity, maxSize) {
                     const url = `${baseUrl || this.defaultBaseUrl}/v1/messages`;
+                    const sysPrompt = stage === 1 ? buildShapeSystemPrompt(complexity, maxSize) : buildColorSystemPrompt(complexity, maxSize);
+                    const userPrompt = stage === 1 ? buildShapeUserPrompt(prompt) : buildColorUserPrompt(prompt, extraData);
                     return {
                         url,
                         headers: {
@@ -1804,23 +1740,25 @@
                         body: {
                             model,
                             max_tokens: 16384,
-                            system: buildSystemPrompt(complexity, maxSize),
+                            system: sysPrompt,
                             messages: [
-                                { role: 'user', content: buildUserPrompt(prompt) }
+                                { role: 'user', content: userPrompt }
                             ]
                         }
                     };
                 },
                 parseResponse(data) {
                     const text = data.content?.[0]?.text || '';
-                    return extractJsonArray(text);
+                    return extractJsonObject(text);
                 }
             },
             glm: {
                 name: 'GLM',
                 defaultBaseUrl: 'https://open.bigmodel.cn',
-                buildRequest(apiKey, model, prompt, baseUrl, complexity, maxSize) {
+                buildRequest(stage, apiKey, model, prompt, extraData, baseUrl, complexity, maxSize) {
                     const url = `${baseUrl || this.defaultBaseUrl}/api/paas/v4/chat/completions`;
+                    const sysPrompt = stage === 1 ? buildShapeSystemPrompt(complexity, maxSize) : buildColorSystemPrompt(complexity, maxSize);
+                    const userPrompt = stage === 1 ? buildShapeUserPrompt(prompt) : buildColorUserPrompt(prompt, extraData);
                     return {
                         url,
                         headers: {
@@ -1830,8 +1768,8 @@
                         body: {
                             model,
                             messages: [
-                                { role: 'system', content: buildSystemPrompt(complexity, maxSize) },
-                                { role: 'user', content: buildUserPrompt(prompt) }
+                                { role: 'system', content: sysPrompt },
+                                { role: 'user', content: userPrompt }
                             ],
                             temperature: 0.7
                         }
@@ -1839,14 +1777,16 @@
                 },
                 parseResponse(data) {
                     const text = data.choices?.[0]?.message?.content || '';
-                    return extractJsonArray(text);
+                    return extractJsonObject(text);
                 }
             },
             deepseek: {
                 name: 'DeepSeek',
                 defaultBaseUrl: 'https://api.deepseek.com',
-                buildRequest(apiKey, model, prompt, baseUrl, complexity, maxSize) {
+                buildRequest(stage, apiKey, model, prompt, extraData, baseUrl, complexity, maxSize) {
                     const url = `${baseUrl || this.defaultBaseUrl}/v1/chat/completions`;
+                    const sysPrompt = stage === 1 ? buildShapeSystemPrompt(complexity, maxSize) : buildColorSystemPrompt(complexity, maxSize);
+                    const userPrompt = stage === 1 ? buildShapeUserPrompt(prompt) : buildColorUserPrompt(prompt, extraData);
                     return {
                         url,
                         headers: {
@@ -1856,25 +1796,29 @@
                         body: {
                             model,
                             messages: [
-                                { role: 'system', content: buildSystemPrompt(complexity, maxSize) },
-                                { role: 'user', content: buildUserPrompt(prompt) }
+                                { role: 'system', content: sysPrompt },
+                                { role: 'user', content: userPrompt }
                             ],
-                            temperature: 0.7
+                            temperature: 0.7,
+                            response_format: { type: 'json_object' }
                         }
                     };
                 },
                 parseResponse(data) {
-                    const text = data.choices?.[0]?.message?.content || '';
-                    return extractJsonArray(text);
+                    const msg = data.choices?.[0]?.message || {};
+                    const text = msg.content || msg.reasoning_content || msg.output_text || '';
+                    return extractJsonObject(text);
                 }
             },
             gemini: {
                 name: 'Gemini',
                 defaultBaseUrl: 'https://generativelanguage.googleapis.com',
-                buildRequest(apiKey, model, prompt, baseUrl, complexity, maxSize) {
+                buildRequest(stage, apiKey, model, prompt, extraData, baseUrl, complexity, maxSize) {
                     let urlBase = baseUrl || this.defaultBaseUrl;
                     if (urlBase.endsWith('/')) urlBase = urlBase.slice(0, -1);
                     const url = `${urlBase}/v1beta/models/${model}:generateContent?key=${apiKey}`;
+                    const sysPrompt = stage === 1 ? buildShapeSystemPrompt(complexity, maxSize) : buildColorSystemPrompt(complexity, maxSize);
+                    const userPrompt = stage === 1 ? buildShapeUserPrompt(prompt) : buildColorUserPrompt(prompt, extraData);
                     return {
                         url,
                         headers: {
@@ -1882,10 +1826,10 @@
                         },
                         body: {
                             system_instruction: {
-                                parts: { text: buildSystemPrompt(complexity, maxSize) }
+                                parts: [{ text: sysPrompt }]
                             },
                             contents: [
-                                { parts: [{ text: buildUserPrompt(prompt) }] }
+                                { role: 'user', parts: [{ text: userPrompt }] }
                             ],
                             generationConfig: {
                                 responseMimeType: 'application/json',
@@ -1896,141 +1840,85 @@
                 },
                 parseResponse(data) {
                     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-                    return extractJsonArray(text);
+                    return extractJsonObject(text);
                 }
             }
         };
 
-        function buildSystemPrompt(complexity = 300, maxSize = 32) {
+        function buildShapeSystemPrompt(complexity = 300, maxSize = 32) {
             const minVoxels = Math.max(10, Math.floor(complexity * 0.8));
             const maxVoxels = Math.floor(complexity * 1.2);
-            return `You are a 3D voxel art generator. When given a description, you produce a JSON array of voxels that form the described object.
-Each voxel is an object with integer coordinates x, y, z and a hex color string (e.g. "#FF5500").
+            return `You are a 3D voxel shape generator. Your output must be ONLY a valid JSON object.
 Rules:
-- Keep the voxel count between ${minVoxels} and ${maxVoxels} (Target: approximately ${complexity} voxels).
-- The model must fit within a bounding box of size ${maxSize * 2} (x, y, z coordinates must be between -${maxSize} and ${maxSize}).
-- Center the model at x=0, z=0.
-- The bottom of the model starts at y=0 or slightly higher.
-- The structure must be physically plausible (connected, no floating parts) and form a recognizable shape.
-- Coordinates must be integers.
-- Use vivid, varied colors appropriate for the subject.
-- Return ONLY a JSON array, no markdown, no explanation. Example: [{"x":0,"y":0,"z":0,"color":"#FF5500"}]`;
+- Generate an array of 3D integer coordinates representing the shape blocks.
+- Keep the voxel count between ${minVoxels} and ${maxVoxels}. Target: ${complexity} voxels.
+- Coordinates must fit within a box: -${maxSize} to ${maxSize}.
+- Center the model around x=0, z=0. The bottom starts at y=0.
+- Output MUST be a JSON object with a key "voxels", containing an array of coordinates [x, y, z].
+Example: {"voxels": [[0,0,0], [1,0,0], [0,1,0]]}`;
         }
 
-        function buildUserPrompt(prompt) {
-            return `Generate a 3D voxel art model of: "${prompt}". Return ONLY the JSON array.`;
+        function buildShapeUserPrompt(prompt) {
+            return `Generate the voxel shape coordinates for: "${prompt}". Return ONLY the JSON object.`;
+        }
+
+        function buildColorSystemPrompt(complexity = 300, maxSize = 32) {
+            return `You are a 3D voxel coloring AI. Your output must be ONLY a valid JSON object.
+Rules:
+- You will receive a prompt and a list of voxel coordinates.
+- You must generate a hex color for each coordinate to paint the model.
+- Return a JSON object with a "colors" key.
+- The value must be an object mapping the coordinate string "[x,y,z]" to a hex color "#RRGGBB".
+Example: {"colors": {"[0,0,0]": "#FF0000", "[1,0,0]": "#00FF00"}}`;
+        }
+
+        function buildColorUserPrompt(prompt, extraData) {
+            return `Color the voxel model for: "${prompt}".
+Coordinates:
+${JSON.stringify(extraData)}
+Return ONLY the JSON object mapping coordinates to colors.`;
+        }
+
+        function extractJsonObject(text) {
+            let cleaned = text.trim();
+            cleaned = cleaned.replace(/```(?:json)?\s*/gi, '').replace(/```/g, '').trim();
+            const startIdx = cleaned.indexOf('{');
+            if (startIdx === -1) throw new Error('No JSON object found in response');
+            cleaned = cleaned.substring(startIdx);
+            try { return JSON.parse(cleaned); } catch (e) {
+                const endIdx = cleaned.lastIndexOf('}');
+                if (endIdx > 0) {
+                    try { return JSON.parse(cleaned.substring(0, endIdx + 1)); } catch (e2) {}
+                }
+            }
+            throw new Error('无法解析阶段 JSON');
         }
 
         function extractJsonArray(text) {
             let cleaned = text.trim();
-
-            // Remove markdown code fences (possibly multiple)
-            cleaned = cleaned.replace(/```(?:json)?\s*/gi, '').replace(/```/g, '');
-            cleaned = cleaned.trim();
-
-            // Find array boundaries
+            cleaned = cleaned.replace(/```(?:json)?\s*/gi, '').replace(/```/g, '').trim();
             const startIdx = cleaned.indexOf('[');
             if (startIdx === -1) throw new Error('No JSON array found in response');
             cleaned = cleaned.substring(startIdx);
-
-            // Try direct parse first (fast path)
-            try {
-                const arr = JSON.parse(cleaned);
-                if (Array.isArray(arr)) return arr;
-            } catch (e) { /* continue to repair */ }
-
-            // Find the last ']' and try parsing up to it
-            const endIdx = cleaned.lastIndexOf(']');
-            if (endIdx > 0) {
-                const slice = cleaned.substring(0, endIdx + 1);
-                try {
-                    const arr = JSON.parse(slice);
-                    if (Array.isArray(arr)) return arr;
-                } catch (e) { /* continue */ }
-            }
-
-            // ---- Repair strategies ----
-
-            // Strategy 1: Fix trailing commas before ] and }
-            function fixTrailingCommas(s) {
-                return s.replace(/,\s*([\]}])/g, '$1');
-            }
-
-            // Strategy 2: Truncation recovery — find last complete object "}" and close array
-            function recoverTruncated(s) {
-                // Walk backwards from end to find last complete "}"
-                let depth = 0;
-                let lastGoodIdx = -1;
-                let inString = false;
-                let escape = false;
-
-                for (let i = 0; i < s.length; i++) {
-                    const ch = s[i];
-                    if (escape) { escape = false; continue; }
-                    if (ch === '\\' && inString) { escape = true; continue; }
-                    if (ch === '"') { inString = !inString; continue; }
-                    if (inString) continue;
-
-                    if (ch === '{') depth++;
-                    if (ch === '}') {
-                        depth--;
-                        if (depth === 0) lastGoodIdx = i;
-                    }
-                    if (ch === '[' && depth === 0) { /* array open */ }
+            try { return JSON.parse(cleaned); } catch (e) {
+                const endIdx = cleaned.lastIndexOf(']');
+                if (endIdx > 0) {
+                    try { return JSON.parse(cleaned.substring(0, endIdx + 1)); } catch (e2) {}
                 }
-
-                if (lastGoodIdx > 0) {
-                    let repaired = s.substring(0, lastGoodIdx + 1) + ']';
-                    repaired = fixTrailingCommas(repaired);
-                    return repaired;
-                }
-                return null;
             }
-
-            // Try repair: fix trailing commas on full text
-            try {
-                const fixed = fixTrailingCommas(cleaned.substring(0, (endIdx > 0 ? endIdx + 1 : cleaned.length)));
-                const arr = JSON.parse(fixed);
-                if (Array.isArray(arr)) return arr;
-            } catch (e) { /* continue */ }
-
-            // Try repair: truncation recovery
-            const recovered = recoverTruncated(cleaned);
-            if (recovered) {
-                try {
-                    const arr = JSON.parse(recovered);
-                    if (Array.isArray(arr)) {
-                        logToConsole(`⚠️ JSON 被截断，已恢复 ${arr.length} 个体素（部分数据可能丢失）`, 'warn');
-                        return arr;
-                    }
-                } catch (e) { /* continue */ }
-            }
-
-            // Strategy 3: Last resort — regex extract individual objects
-            // Match patterns like {"x":1,"y":2,"z":3,"color":"#FF0000"} with flexible key names
-            const objPattern = /\{\s*"[^"]*"\s*:\s*(?:-?\d+)\s*,\s*"[^"]*"\s*:\s*(?:-?\d+)\s*,\s*"[^"]*"\s*:\s*(?:-?\d+)\s*,\s*"[^"]*"\s*:\s*"[^"]*"\s*\}/g;
-            const matches = cleaned.match(objPattern);
-            if (matches && matches.length > 0) {
-                const arr = matches.map(m => JSON.parse(m));
-                logToConsole(`⚠️ JSON 格式严重损坏，通过正则提取了 ${arr.length} 个体素`, 'warn');
-                return arr;
-            }
-
-            throw new Error('无法解析 AI 返回的 JSON 数据，请重试');
+            throw new Error('无法解析 JSON 数组');
         }
 
         function parseVoxelData(rawArray) {
             return rawArray.map(v => {
                 let colorVal = v.color || v.c || '#CCCCCC';
                 let colorInt = 0xCCCCCC;
-
                 if (typeof colorVal === 'string') {
                     if (colorVal.startsWith('#')) colorVal = colorVal.substring(1);
                     colorInt = parseInt(colorVal, 16);
                 } else if (typeof colorVal === 'number') {
                     colorInt = colorVal;
                 }
-
                 return {
                     x: Math.round(Number(v.x) || 0),
                     y: Math.round(Number(v.y) || 0),
@@ -2039,8 +1927,8 @@ Rules:
                 };
             });
         }
-
-        // ======================== APP STATE ========================
+        
+// ======================== APP STATE ========================
         let activeProvider = 'openai';
         let engine = null;
         let isGenerating = false;
@@ -2200,7 +2088,7 @@ Rules:
                 complexity: document.getElementById('param-complexity').value,
                 maxSize: document.getElementById('param-max-size').value
             };
-            ['openai', 'claude', 'glm', 'deepseek'].forEach(p => {
+            ['openai', 'claude', 'glm', 'deepseek', 'gemini'].forEach(p => {
                 s[p] = {
                     key: document.getElementById(`key-${p}`).value.trim(),
                     model: document.getElementById(`model-${p}`).value,
@@ -2232,7 +2120,7 @@ Rules:
         }
 
         function updateAllKeyStatuses() {
-            ['openai', 'claude', 'glm', 'deepseek'].forEach(updateKeyStatus);
+            ['openai', 'claude', 'glm', 'deepseek', 'gemini'].forEach(updateKeyStatus);
         }
 
         // ======================== API TEST ========================
@@ -2256,7 +2144,7 @@ Rules:
 
             try {
                 const prov = PROVIDERS[provider];
-                const req = prov.buildRequest(config.key, config.model, 'Say "hello" in one word.', config.baseUrl);
+                const req = prov.buildRequest(1, config.key, config.model, 'Say "hello" in one word.', null, config.baseUrl, 50, 32);
                 // Overwrite body to be minimal for test
                 if (provider === 'claude') {
                     req.body.messages = [
@@ -2876,15 +2764,14 @@ Rules:
 
             isGenerating = true;
             document.getElementById('btn-generate').disabled = true;
-            setGeneratingUI(true, `${PROVIDERS[activeProvider].name} 正在生成...`);
+            setGeneratingUI(true, `${PROVIDERS[activeProvider].name} 正在生成第一阶段(白模)...`);
             setConsoleLive(true);
 
-            // Auto-open console to show progress
             if (!document.getElementById('console-panel').classList.contains('open')) {
                 toggleConsole();
             }
 
-            logToConsole(`━━━ 新生成任务 ━━━`, 'info');
+            logToConsole(`━━━ 新生成任务(分步生成) ━━━`, 'info');
             logToConsole(`提供商: ${PROVIDERS[activeProvider].name}`, 'info');
             logToConsole(`模型: ${config.model}`, 'info');
             logToConsole(`提示词: "${prompt}"`, 'info');
@@ -2895,63 +2782,87 @@ Rules:
 
             try {
                 const provider = PROVIDERS[activeProvider];
-                const req = provider.buildRequest(config.key, config.model, prompt, config.baseUrl, complexity, maxSize);
-
-                logToConsole(`发送请求到 ${req.url}`, 'data');
-                updateGenStatus('正在发送请求...');
-
-                const resp = await fetch(req.url, {
-                    method: 'POST',
-                    headers: req.headers,
-                    body: JSON.stringify(req.body)
+                
+                // ===== STAGE 1: SHAPE =====
+                const req1 = provider.buildRequest(1, config.key, config.model, prompt, null, config.baseUrl, complexity, maxSize);
+                logToConsole(`[阶段一] 发送形状请求...`, 'data');
+                
+                const resp1 = await fetch(req1.url, {
+                    method: 'POST', headers: req1.headers, body: JSON.stringify(req1.body)
                 });
-
-                const elapsed1 = Date.now() - startTime;
-                logToConsole(`收到响应 HTTP ${resp.status} (${elapsed1}ms)`, resp.ok ? 'success' : 'error');
-
-                if (!resp.ok) {
-                    const errText = await resp.text();
-                    let errMsg = `API 请求失败 (${resp.status})`;
-                    try {
-                        const errJson = JSON.parse(errText);
-                        errMsg = errJson.error?.message || errJson.message || errMsg;
-                    } catch { }
-                    logToConsole(`错误详情: ${errMsg}`, 'error');
-                    throw new Error(errMsg);
+                
+                if (!resp1.ok) {
+                    const errText = await resp1.text();
+                    throw new Error(`阶段一 API 失败 (${resp1.status})`);
                 }
-
-                updateGenStatus('正在读取响应...');
-                logToConsole('正在读取响应体...', 'data');
-
-                const data = await resp.json();
-                const elapsed2 = Date.now() - startTime;
-                logToConsole(`响应读取完成 (${elapsed2}ms)`, 'data');
-
-                // Log token usage if available
-                if (data.usage) {
-                    const u = data.usage;
-                    logToConsole(`Token 用量: 输入=${u.prompt_tokens || u.input_tokens || '?'}, 输出=${u.completion_tokens || u.output_tokens || '?'}, 总计=${u.total_tokens || '?'}`, 'info');
+                
+                const data1 = await resp1.json();
+                const shapeResult = provider.parseResponse(data1);
+                
+                if (!shapeResult || !shapeResult.voxels || !Array.isArray(shapeResult.voxels)) {
+                    throw new Error('阶段一未返回有效的体素数组 (voxels)');
                 }
+                
+                const coords = shapeResult.voxels;
+                logToConsole(`[阶段一] 成功生成 ${coords.length} 个白模坐标 (${Date.now() - startTime}ms)`, 'success');
+                if (coords.length === 0) throw new Error('AI 返回了空的形状');
+                
+                // 暂时渲染白模
+                const whiteModelData = coords.map(c => ({
+                    x: c[0], y: c[1], z: c[2], color: 0xF0F0F0
+                }));
+                engine.loadModel(whiteModelData);
+                document.getElementById('voxel-count').textContent = coords.length;
+                
+                // ===== STAGE 2: COLOR =====
+                setGeneratingUI(true, `${PROVIDERS[activeProvider].name} 正在生成第二阶段(着色)...`);
+                logToConsole(`[阶段二] 发送颜色映射请求...`, 'data');
+                updateGenStatus('正在生成第二阶段(着色)...');
+                
+                const req2 = provider.buildRequest(2, config.key, config.model, prompt, coords, config.baseUrl, complexity, maxSize);
+                
+                const resp2 = await fetch(req2.url, {
+                    method: 'POST', headers: req2.headers, body: JSON.stringify(req2.body)
+                });
+                
+                if (!resp2.ok) {
+                    const errText = await resp2.text();
+                    throw new Error(`阶段二 API 失败 (${resp2.status})`);
+                }
+                
+                const data2 = await resp2.json();
+                const colorResult = provider.parseResponse(data2);
+                
+                if (!colorResult || !colorResult.colors) {
+                    throw new Error('阶段二未返回有效的颜色映射 (colors)');
+                }
+                
+                const colorMap = colorResult.colors;
+                logToConsole(`[阶段二] 接收到着色数据 (${Date.now() - startTime}ms)`, 'success');
+                
+                // ===== ASSEMBLE =====
+                updateGenStatus('正在渲染最终模型...');
+                const finalVoxels = coords.map(c => {
+                    const key1 = `[${c[0]},${c[1]},${c[2]}]`;
+                    const key2 = `[${c[0]}, ${c[1]}, ${c[2]}]`;
+                    let hexStr = colorMap[key1] || colorMap[key2] || '#CCCCCC';
+                    if (hexStr.startsWith('#')) hexStr = hexStr.substring(1);
+                    
+                    return {
+                        x: Math.round(Number(c[0]) || 0),
+                        y: Math.round(Number(c[1]) || 0),
+                        z: Math.round(Number(c[2]) || 0),
+                        color: parseInt(hexStr, 16) || 0xCCCCCC
+                    };
+                });
+                
+                engine.loadModel(finalVoxels);
+                document.getElementById('voxel-count').textContent = finalVoxels.length;
 
-                updateGenStatus('正在解析体素数据...');
-                logToConsole('正在解析 JSON 数据...', 'data');
-
-                const rawArray = provider.parseResponse(data);
-                logToConsole(`解析到 ${rawArray.length} 个原始体素对象`, 'info');
-
-                const voxelData = parseVoxelData(rawArray);
-                const elapsed3 = Date.now() - startTime;
-
-                if (voxelData.length === 0) throw new Error('AI 返回了空数据');
-
-                updateGenStatus('正在渲染模型...');
-                logToConsole(`正在渲染 ${voxelData.length} 个体素...`, 'data');
-
-                engine.loadModel(voxelData);
-                document.getElementById('voxel-count').textContent = voxelData.length;
-
-                logToConsole(`✅ 生成完成！共 ${voxelData.length} 个体素，总耗时 ${elapsed3}ms`, 'success');
-                showToast(`✨ 生成了 ${voxelData.length} 个体素`, 'success');
+                const elapsedTotal = Date.now() - startTime;
+                logToConsole(`✅ 生成完成！共 ${finalVoxels.length} 个体素，总耗时 ${elapsedTotal}ms`, 'success');
+                showToast(`✨ 生成了 ${finalVoxels.length} 个体素`, 'success');
+                
                 document.getElementById('prompt-input').value = '';
                 autoResizeTextarea(document.getElementById('prompt-input'));
 
