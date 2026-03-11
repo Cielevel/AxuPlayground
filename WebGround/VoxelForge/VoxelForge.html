@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VoxelForge - AI 体素模型生成器</title>
     <meta name="description" content="使用 AI 生成精美的 3D 体素模型。支持 Claude、OpenAI、GLM、DeepSeek 等多种 AI 模型。">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         :root {
             --bg-primary: #07070b;
@@ -18,8 +26,9 @@
             --bg-card: rgba(13, 13, 20, 0.45);
             --bg-glass: rgba(13, 13, 20, 0.25);
             --border-color: rgba(255, 255, 255, 0.08);
-            --border-active: rgba(0, 240, 255, 0.5); /* Cyan */
-            
+            --border-active: rgba(0, 240, 255, 0.5);
+            /* Cyan */
+
             --text-primary: #f8fafc;
             --text-secondary: #cbd5e1;
             --text-muted: #64748b;
@@ -45,18 +54,37 @@
 
         /* Ambient glowing animations */
         @keyframes shimmer {
-            0% { background-position: 200% center; }
-            100% { background-position: -200% center; }
+            0% {
+                background-position: 200% center;
+            }
+
+            100% {
+                background-position: -200% center;
+            }
         }
 
         @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 15px var(--accent-glow), inset 0 0 10px rgba(0, 240, 255, 0.1); }
-            50% { box-shadow: 0 0 35px var(--accent-glow), inset 0 0 20px rgba(0, 240, 255, 0.2); }
+
+            0%,
+            100% {
+                box-shadow: 0 0 15px var(--accent-glow), inset 0 0 10px rgba(0, 240, 255, 0.1);
+            }
+
+            50% {
+                box-shadow: 0 0 35px var(--accent-glow), inset 0 0 20px rgba(0, 240, 255, 0.2);
+            }
         }
 
         @keyframes floating {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-3px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-3px);
+            }
         }
 
         body {
@@ -80,19 +108,24 @@
         /* ========== Top Bar ========== */
         .top-bar {
             position: fixed;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             z-index: 100;
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 16px 24px;
-            background: linear-gradient(180deg, rgba(7,7,11,0.8) 0%, rgba(7,7,11,0) 100%);
+            background: linear-gradient(180deg, rgba(7, 7, 11, 0.8) 0%, rgba(7, 7, 11, 0) 100%);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             pointer-events: none;
             border-bottom: 1px solid rgba(255, 255, 255, 0.03);
         }
-        .top-bar > * { pointer-events: auto; }
+
+        .top-bar>* {
+            pointer-events: auto;
+        }
 
         .logo {
             display: flex;
@@ -100,15 +133,20 @@
             gap: 12px;
             animation: floating 4s ease-in-out infinite;
         }
+
         .logo-icon {
-            width: 40px; height: 40px;
+            width: 40px;
+            height: 40px;
             background: var(--accent-gradient);
             border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 20px;
-            box-shadow: 0 0 25px var(--accent-glow), inset 0 2px 4px rgba(255,255,255,0.3);
-            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 0 25px var(--accent-glow), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
+
         .logo-text {
             font-weight: 900;
             font-size: 22px;
@@ -116,7 +154,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             letter-spacing: -0.5px;
-            text-shadow: 0 0 20px rgba(255,255,255,0.1);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
         }
 
         .voxel-badge {
@@ -132,13 +170,15 @@
             font-size: 13px;
             font-weight: 700;
             color: var(--text-secondary);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             transition: var(--transition);
         }
+
         .voxel-badge:hover {
-            border-color: rgba(255,255,255,0.2);
-            background: rgba(255,255,255,0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
         }
+
         .voxel-badge .count {
             color: #818cf8;
             font-size: 16px;
@@ -153,7 +193,8 @@
 
         /* ========== Icon Buttons ========== */
         .icon-btn {
-            width: 44px; height: 44px;
+            width: 44px;
+            height: 44px;
             border: 1px solid var(--border-color);
             border-radius: var(--radius);
             background: var(--bg-glass);
@@ -161,29 +202,40 @@
             -webkit-backdrop-filter: blur(16px);
             color: var(--text-secondary);
             cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: all var(--transition);
             font-size: 18px;
             position: relative;
             overflow: hidden;
         }
+
         .icon-btn::before {
-            content: ''; position: absolute; inset: 0;
-            background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 70%);
-            opacity: 0; transition: opacity var(--transition);
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity var(--transition);
         }
+
         .icon-btn:hover {
-            border-color: rgba(255,255,255,0.2);
+            border-color: rgba(255, 255, 255, 0.2);
             color: var(--text-primary);
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
         }
-        .icon-btn:hover::before { opacity: 1; }
+
+        .icon-btn:hover::before {
+            opacity: 1;
+        }
+
         .icon-btn.active {
             border-color: var(--accent-primary);
             color: var(--accent-primary);
             background: rgba(0, 240, 255, 0.05);
-            box-shadow: 0 0 20px var(--accent-glow), inset 0 0 10px rgba(0,240,255,0.1);
+            box-shadow: 0 0 20px var(--accent-glow), inset 0 0 10px rgba(0, 240, 255, 0.1);
         }
 
         /* ========== Settings Panel ========== */
@@ -206,6 +258,7 @@
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             overflow: hidden;
         }
+
         .settings-panel.open {
             transform: translateX(0);
         }
@@ -217,22 +270,31 @@
             align-items: center;
             justify-content: space-between;
         }
+
         .panel-header h3 {
             font-size: 15px;
             font-weight: 800;
             letter-spacing: -0.3px;
         }
+
         .panel-close {
-            width: 28px; height: 28px;
-            border: none; border-radius: 8px;
-            background: rgba(239,68,68,0.15);
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(239, 68, 68, 0.15);
             color: #ef4444;
             cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 14px;
             transition: all var(--transition);
         }
-        .panel-close:hover { background: rgba(239,68,68,0.3); }
+
+        .panel-close:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
 
         .panel-body {
             flex: 1;
@@ -242,18 +304,29 @@
             flex-direction: column;
             gap: 16px;
         }
-        .panel-body::-webkit-scrollbar { width: 4px; }
-        .panel-body::-webkit-scrollbar-track { background: transparent; }
-        .panel-body::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+
+        .panel-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .panel-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .panel-body::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
 
         /* Provider Tabs */
         .provider-tabs {
             display: flex;
             gap: 4px;
             padding: 4px;
-            background: rgba(0,0,0,0.3);
+            background: rgba(0, 0, 0, 0.3);
             border-radius: var(--radius);
         }
+
         .provider-tab {
             flex: 1;
             padding: 8px 4px;
@@ -268,7 +341,11 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        .provider-tab:hover { color: var(--text-secondary); }
+
+        .provider-tab:hover {
+            color: var(--text-secondary);
+        }
+
         .provider-tab.active {
             background: var(--accent-primary);
             color: #fff;
@@ -281,6 +358,7 @@
             flex-direction: column;
             gap: 6px;
         }
+
         .form-label {
             font-size: 11px;
             font-weight: 700;
@@ -288,10 +366,12 @@
             text-transform: uppercase;
             letter-spacing: 0.8px;
         }
-        .form-input, .form-select {
+
+        .form-input,
+        .form-select {
             width: 100%;
             padding: 10px 14px;
-            background: rgba(0,0,0,0.3);
+            background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--border-color);
             border-radius: var(--radius);
             color: var(--text-primary);
@@ -301,12 +381,22 @@
             outline: none;
             transition: all var(--transition);
         }
-        .form-input:focus, .form-select:focus {
+
+        .form-input:focus,
+        .form-select:focus {
             border-color: var(--accent-primary);
             box-shadow: 0 0 0 3px var(--accent-glow);
         }
-        .form-input::placeholder { color: var(--text-muted); }
-        .form-select { cursor: pointer; appearance: none; }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-select {
+            cursor: pointer;
+            appearance: none;
+        }
+
         .form-select option {
             background: var(--bg-secondary);
             color: var(--text-primary);
@@ -322,6 +412,7 @@
             outline: none;
             transition: all var(--transition);
         }
+
         .form-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -333,6 +424,7 @@
             box-shadow: 0 0 10px var(--accent-glow);
             transition: transform var(--transition);
         }
+
         .form-slider::-webkit-slider-thumb:hover {
             transform: scale(1.2);
             box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
@@ -345,7 +437,10 @@
         /* Drag and Drop Overlay */
         .drop-overlay {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(7, 7, 11, 0.85);
             backdrop-filter: blur(8px);
             z-index: 9999;
@@ -356,10 +451,12 @@
             pointer-events: none;
             transition: opacity 0.3s;
         }
+
         .drop-overlay.active {
             opacity: 1;
             pointer-events: auto;
         }
+
         .drop-message {
             color: var(--text-primary);
             font-size: 24px;
@@ -371,32 +468,47 @@
             background: rgba(0, 240, 255, 0.05);
             box-shadow: 0 0 30px rgba(0, 240, 255, 0.1);
         }
+
         .input-toggle {
             position: absolute;
-            right: 8px; top: 50%; transform: translateY(-50%);
-            width: 28px; height: 28px;
-            border: none; border-radius: 6px;
-            background: rgba(99,102,241,0.15);
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 6px;
+            background: rgba(99, 102, 241, 0.15);
             color: var(--accent-primary);
             cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 12px;
             transition: all var(--transition);
         }
-        .input-toggle:hover { background: rgba(99,102,241,0.3); }
+
+        .input-toggle:hover {
+            background: rgba(99, 102, 241, 0.3);
+        }
 
         .status-dot {
             display: inline-block;
-            width: 8px; height: 8px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             margin-right: 6px;
         }
-        .status-dot.ok { 
-            background: var(--success); 
-            box-shadow: 0 0 10px rgba(16,185,129,0.8); 
+
+        .status-dot.ok {
+            background: var(--success);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
             animation: pulse-glow 2s infinite;
         }
-        .status-dot.empty { background: var(--text-muted); }
+
+        .status-dot.empty {
+            background: var(--text-muted);
+        }
 
         .key-status {
             font-size: 11px;
@@ -415,6 +527,7 @@
             z-index: 100;
             width: min(680px, calc(100% - 40px));
         }
+
         .prompt-container {
             display: flex;
             align-items: flex-end;
@@ -425,12 +538,13 @@
             -webkit-backdrop-filter: blur(24px);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-xl);
-            box-shadow: var(--shadow), 0 0 20px rgba(0,240,255,0.05);
+            box-shadow: var(--shadow), 0 0 20px rgba(0, 240, 255, 0.05);
             transition: all var(--transition);
         }
+
         .prompt-container:focus-within {
             border-color: var(--border-active);
-            box-shadow: var(--shadow), 0 0 30px var(--accent-glow), inset 0 0 15px rgba(0,240,255,0.05);
+            box-shadow: var(--shadow), 0 0 30px var(--accent-glow), inset 0 0 15px rgba(0, 240, 255, 0.05);
             transform: translateY(-2px);
         }
 
@@ -449,7 +563,10 @@
             max-height: 120px;
             line-height: 1.5;
         }
-        .prompt-input::placeholder { color: var(--text-muted); }
+
+        .prompt-input::placeholder {
+            color: var(--text-muted);
+        }
 
         .generate-btn {
             flex-shrink: 0;
@@ -470,12 +587,17 @@
             box-shadow: 0 4px 20px var(--accent-glow);
             animation: shimmer 5s linear infinite;
         }
+
         .generate-btn:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 8px 30px rgba(0, 240, 255, 0.6);
             animation-duration: 2s;
         }
-        .generate-btn:active:not(:disabled) { transform: translateY(0); }
+
+        .generate-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
         .generate-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -501,7 +623,10 @@
             transition: color var(--transition);
             flex-shrink: 0;
         }
-        .provider-indicator:hover { color: var(--accent-hover); }
+
+        .provider-indicator:hover {
+            color: var(--accent-hover);
+        }
 
         /* ========== Loading Indicator (non-blocking) ========== */
         .generating-indicator {
@@ -509,20 +634,26 @@
             align-items: center;
             gap: 10px;
             padding: 8px 16px;
-            background: rgba(99,102,241,0.1);
-            border: 1px solid rgba(99,102,241,0.3);
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
             border-radius: var(--radius);
             margin-bottom: 8px;
         }
-        .generating-indicator.active { display: flex; }
+
+        .generating-indicator.active {
+            display: flex;
+        }
+
         .generating-indicator .mini-spinner {
-            width: 18px; height: 18px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
             border: 2px solid var(--border-color);
             border-top-color: var(--accent-primary);
             animation: spin 0.8s linear infinite;
             flex-shrink: 0;
         }
+
         .generating-indicator .gen-text {
             font-size: 12px;
             font-weight: 600;
@@ -531,13 +662,30 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
 
         .prompt-container.disabled .prompt-input {
             pointer-events: none;
             opacity: 0.4;
         }
+
         .prompt-container.disabled .generate-btn {
             pointer-events: none;
         }
@@ -558,13 +706,14 @@
             border-radius: var(--radius-lg);
             display: flex;
             flex-direction: column;
-            box-shadow: var(--shadow), inset 0 0 30px rgba(0,0,0,0.8);
+            box-shadow: var(--shadow), inset 0 0 30px rgba(0, 0, 0, 0.8);
             transform: translateY(20px);
             opacity: 0;
             pointer-events: none;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             overflow: hidden;
         }
+
         .console-panel.open {
             transform: translateY(0);
             opacity: 1;
@@ -576,14 +725,16 @@
             align-items: center;
             justify-content: space-between;
             padding: 10px 14px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
             flex-shrink: 0;
         }
+
         .console-header-left {
             display: flex;
             align-items: center;
             gap: 8px;
         }
+
         .console-header h4 {
             font-size: 12px;
             font-weight: 700;
@@ -591,30 +742,44 @@
             text-transform: uppercase;
             letter-spacing: 0.8px;
         }
+
         .console-dot {
-            width: 7px; height: 7px;
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
             background: var(--text-muted);
         }
+
         .console-dot.live {
             background: #10b981;
-            box-shadow: 0 0 6px rgba(16,185,129,0.6);
+            box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
             animation: pulse 1.5s ease-in-out infinite;
         }
+
         .console-actions {
-            display: flex; gap: 4px;
+            display: flex;
+            gap: 4px;
         }
+
         .console-action-btn {
-            width: 24px; height: 24px;
-            border: none; border-radius: 6px;
+            width: 24px;
+            height: 24px;
+            border: none;
+            border-radius: 6px;
             background: transparent;
             color: var(--text-muted);
             cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 11px;
             transition: all var(--transition);
         }
-        .console-action-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.06); }
+
+        .console-action-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.06);
+        }
 
         .console-body {
             flex: 1;
@@ -624,32 +789,59 @@
             font-size: 11px;
             line-height: 1.6;
         }
-        .console-body::-webkit-scrollbar { width: 4px; }
-        .console-body::-webkit-scrollbar-track { background: transparent; }
-        .console-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+        .console-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .console-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .console-body::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
 
         .log-line {
             padding: 1px 0;
             color: var(--text-secondary);
             word-break: break-all;
         }
+
         .log-line .log-time {
             color: var(--text-muted);
             margin-right: 8px;
             font-size: 10px;
         }
-        .log-line.info { color: #93c5fd; }
-        .log-line.success { color: #6ee7b7; }
-        .log-line.error { color: #fca5a5; }
-        .log-line.warn { color: #fcd34d; }
-        .log-line.data { color: #c4b5fd; font-size: 10px; }
+
+        .log-line.info {
+            color: #93c5fd;
+        }
+
+        .log-line.success {
+            color: #6ee7b7;
+        }
+
+        .log-line.error {
+            color: #fca5a5;
+        }
+
+        .log-line.warn {
+            color: #fcd34d;
+        }
+
+        .log-line.data {
+            color: #c4b5fd;
+            font-size: 10px;
+        }
 
         /* ========== API Test Button ========== */
         .test-btn {
             padding: 8px 16px;
-            border: 1px solid rgba(16,185,129,0.3);
+            border: 1px solid rgba(16, 185, 129, 0.3);
             border-radius: var(--radius);
-            background: rgba(16,185,129,0.1);
+            background: rgba(16, 185, 129, 0.1);
             color: #6ee7b7;
             font-size: 12px;
             font-weight: 700;
@@ -660,36 +852,62 @@
             align-items: center;
             gap: 6px;
         }
-        .test-btn:hover { background: rgba(16,185,129,0.2); border-color: rgba(16,185,129,0.5); }
-        .test-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .test-btn:hover {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.5);
+        }
+
+        .test-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         .test-btn.testing {
             color: var(--accent-primary);
             border-color: var(--border-active);
             background: rgba(0, 240, 255, 0.1);
             animation: floating 1s infinite alternate;
         }
+
         .test-result {
             font-size: 11px;
             font-weight: 600;
             padding: 4px 0;
             min-height: 20px;
         }
-        .test-result.ok { color: #6ee7b7; }
-        .test-result.fail { color: #fca5a5; }
+
+        .test-result.ok {
+            color: #6ee7b7;
+        }
+
+        .test-result.fail {
+            color: #fca5a5;
+        }
 
         @media (max-width: 768px) {
-            .console-panel { width: calc(100% - 32px); left: 16px; right: 16px; }
+            .console-panel {
+                width: calc(100% - 32px);
+                left: 16px;
+                right: 16px;
+            }
         }
 
         /* ========== JSON Modal ========== */
         .modal-overlay {
-            position: fixed; inset: 0; z-index: 600;
+            position: fixed;
+            inset: 0;
+            z-index: 600;
             display: none;
-            align-items: center; justify-content: center;
-            background: rgba(15,15,23,0.75);
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 15, 23, 0.75);
             backdrop-filter: blur(6px);
         }
-        .modal-overlay.active { display: flex; }
+
+        .modal-overlay.active {
+            display: flex;
+        }
 
         .modal-card {
             background: var(--bg-card);
@@ -701,9 +919,10 @@
             max-height: 80vh;
             display: flex;
             flex-direction: column;
-            box-shadow: var(--shadow), 0 0 50px rgba(0,0,0,0.6);
+            box-shadow: var(--shadow), 0 0 50px rgba(0, 0, 0, 0.6);
             overflow: hidden;
         }
+
         .modal-header {
             display: flex;
             align-items: center;
@@ -711,13 +930,23 @@
             padding: 16px 20px;
             border-bottom: 1px solid var(--border-color);
         }
-        .modal-header h3 { font-size: 15px; font-weight: 800; }
-        .modal-body { padding: 16px 20px; flex: 1; overflow-y: auto; }
+
+        .modal-header h3 {
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .modal-body {
+            padding: 16px 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
         .modal-body textarea {
             width: 100%;
             min-height: 300px;
             padding: 14px;
-            background: rgba(0,0,0,0.3);
+            background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--border-color);
             border-radius: var(--radius);
             color: var(--text-primary);
@@ -726,9 +955,11 @@
             outline: none;
             resize: vertical;
         }
+
         .modal-body textarea:focus {
             border-color: var(--accent-primary);
         }
+
         .modal-footer {
             padding: 12px 20px;
             border-top: 1px solid var(--border-color);
@@ -736,6 +967,7 @@
             justify-content: flex-end;
             gap: 8px;
         }
+
         .modal-btn {
             padding: 8px 20px;
             border: 1px solid var(--border-color);
@@ -748,23 +980,33 @@
             cursor: pointer;
             transition: all var(--transition);
         }
-        .modal-btn:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+
+        .modal-btn:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
         .modal-btn.primary {
             background: var(--accent-primary);
             border-color: var(--accent-primary);
             color: #fff;
         }
-        .modal-btn.primary:hover { background: var(--accent-hover); }
+
+        .modal-btn.primary:hover {
+            background: var(--accent-hover);
+        }
 
         /* ========== Toast ========== */
         .toast-container {
             position: fixed;
-            top: 72px; right: 20px;
+            top: 72px;
+            right: 20px;
             z-index: 700;
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
+
         .toast {
             padding: 14px 20px;
             background: var(--bg-glass);
@@ -782,331 +1024,387 @@
             align-items: center;
             gap: 10px;
         }
-        .toast.error { border-color: rgba(239,68,68,0.4); color: #fca5a5; }
-        .toast.success { border-color: rgba(16,185,129,0.4); color: #6ee7b7; }
-        @keyframes slideIn { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
-        @keyframes fadeOut { to { opacity: 0; transform: translateX(40px); } }
+
+        .toast.error {
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+        }
+
+        .toast.success {
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #6ee7b7;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(40px);
+                opacity: 0;
+            }
+
+            to {
+                transform: none;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+        }
 
         /* ========== Responsive ========== */
         @media (max-width: 768px) {
-            .settings-panel { width: calc(100% - 32px); left: 16px; right: 16px; }
-            .bottom-bar { width: calc(100% - 20px); }
+            .settings-panel {
+                width: calc(100% - 32px);
+                left: 16px;
+                right: 16px;
+            }
+
+            .bottom-bar {
+                width: calc(100% - 20px);
+            }
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
+
 <body>
 
-<!-- 3D Canvas -->
-<div id="canvas-container"></div>
+    <!-- 3D Canvas -->
+    <div id="canvas-container"></div>
 
-<!-- Top Bar -->
-<div class="top-bar">
-    <div style="display:flex;align-items:center;gap:12px;">
-        <div class="logo">
-            <div class="logo-icon">🧊</div>
-            <span class="logo-text">VoxelForge</span>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <div class="logo">
+                <div class="logo-icon">🧊</div>
+                <span class="logo-text">VoxelForge</span>
+            </div>
+            <div class="voxel-badge">
+                <span>🧱</span>
+                <span>Voxels</span>
+                <span class="count" id="voxel-count">0</span>
+            </div>
         </div>
-        <div class="voxel-badge">
-            <span>🧱</span>
-            <span>Voxels</span>
-            <span class="count" id="voxel-count">0</span>
+        <div class="top-actions">
+            <button class="icon-btn" id="btn-settings" title="设置">⚙️</button>
+            <button class="icon-btn" id="btn-console" title="控制台">📋</button>
+            <button class="icon-btn" id="btn-rotate" title="切换旋转">⟳</button>
+            <button class="icon-btn" id="btn-export" title="导出 JSON">📤</button>
+            <button class="icon-btn" id="btn-export-vox" title="导出 .vox 文件">🎲</button>
+            <button class="icon-btn" id="btn-export-obj" title="导出 .obj 文件">🧊</button>
+            <button class="icon-btn" id="btn-export-obj-opt" title="导出 表面精简 .obj 文件">🧊</button>
+            <button class="icon-btn" id="btn-export-glb" title="导出 .glb 文件">🟡</button>
+            <button class="icon-btn" id="btn-import-file" title="选择 JSON 文件">📁</button>
+            <button class="icon-btn" id="btn-import" title="粘贴 JSON">📥</button>
+            <button class="icon-btn" id="btn-clear" title="清空场景">🗑️</button>
         </div>
     </div>
-    <div class="top-actions">
-        <button class="icon-btn" id="btn-settings" title="设置">⚙️</button>
-        <button class="icon-btn" id="btn-console" title="控制台">📋</button>
-        <button class="icon-btn" id="btn-rotate" title="切换旋转" >⟳</button>
-        <button class="icon-btn" id="btn-export" title="导出 JSON">📤</button>
-        <button class="icon-btn" id="btn-export-vox" title="导出 .vox 文件">🎲</button>
-        <button class="icon-btn" id="btn-export-obj" title="导出 .obj 文件">🧊</button>
-        <button class="icon-btn" id="btn-export-glb" title="导出 .glb 文件">🟡</button>
-        <button class="icon-btn" id="btn-import-file" title="选择 JSON 文件">📁</button>
-        <button class="icon-btn" id="btn-import" title="粘贴 JSON">📥</button>
-        <button class="icon-btn" id="btn-clear" title="清空场景">🗑️</button>
-    </div>
-</div>
 
-<!-- Settings Panel -->
-<div class="settings-panel" id="settings-panel">
-    <div class="panel-header">
-        <h3>⚡ API 配置</h3>
-        <button class="panel-close" id="btn-close-settings">✕</button>
-    </div>
-    <div class="panel-body">
-        <!-- Global Settings -->
-        <div class="global-settings" style="padding-bottom: 12px; border-bottom: 1px solid var(--border-color); margin-bottom: 4px;">
-            <div class="form-group" style="margin-bottom: 16px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <label class="form-label" style="margin-bottom: 0;">模型复杂度 (Voxel Count)</label>
-                    <span id="label-complexity" style="font-size: 12px; font-weight: 800; color: var(--accent-primary);">300</span>
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settings-panel">
+        <div class="panel-header">
+            <h3>⚡ API 配置</h3>
+            <button class="panel-close" id="btn-close-settings">✕</button>
+        </div>
+        <div class="panel-body">
+            <!-- Global Settings -->
+            <div class="global-settings"
+                style="padding-bottom: 12px; border-bottom: 1px solid var(--border-color); margin-bottom: 4px;">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <label class="form-label" style="margin-bottom: 0;">模型复杂度 (Voxel Count)</label>
+                        <span id="label-complexity"
+                            style="font-size: 12px; font-weight: 800; color: var(--accent-primary);">300</span>
+                    </div>
+                    <input type="range" class="form-slider" id="param-complexity" min="50" max="1500" value="300"
+                        step="50">
+                    <div
+                        style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-top: 4px;">
+                        <span>极简 50</span>
+                        <span>复杂 1500</span>
+                    </div>
                 </div>
-                <input type="range" class="form-slider" id="param-complexity" min="50" max="1500" value="300" step="50">
-                <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-top: 4px;">
-                    <span>极简 50</span>
-                    <span>复杂 1500</span>
+
+                <div class="form-group">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <label class="form-label" style="margin-bottom: 0;">最大空间尺寸 (Max Scale)</label>
+                        <span id="label-max-size"
+                            style="font-size: 12px; font-weight: 800; color: var(--accent-primary);">32</span>
+                    </div>
+                    <input type="range" class="form-slider" id="param-max-size" min="5" max="64" value="32" step="1">
+                    <div
+                        style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-top: 4px;">
+                        <span>迷你 5</span>
+                        <span>庞大 64</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <label class="form-label" style="margin-bottom: 0;">最大空间尺寸 (Max Scale)</label>
-                    <span id="label-max-size" style="font-size: 12px; font-weight: 800; color: var(--accent-primary);">32</span>
-                </div>
-                <input type="range" class="form-slider" id="param-max-size" min="5" max="64" value="32" step="1">
-                <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-top: 4px;">
-                    <span>迷你 5</span>
-                    <span>庞大 64</span>
-                </div>
+            <!-- Provider Tabs -->
+            <div class="provider-tabs" id="provider-tabs">
+                <button class="provider-tab active" data-provider="openai">OpenAI</button>
+                <button class="provider-tab" data-provider="claude">Claude</button>
+                <button class="provider-tab" data-provider="glm">GLM</button>
+                <button class="provider-tab" data-provider="deepseek">DeepSeek</button>
+                <button class="provider-tab" data-provider="gemini">Gemini</button>
             </div>
-        </div>
 
-        <!-- Provider Tabs -->
-        <div class="provider-tabs" id="provider-tabs">
-            <button class="provider-tab active" data-provider="openai">OpenAI</button>
-            <button class="provider-tab" data-provider="claude">Claude</button>
-            <button class="provider-tab" data-provider="glm">GLM</button>
-            <button class="provider-tab" data-provider="deepseek">DeepSeek</button>
-            <button class="provider-tab" data-provider="gemini">Gemini</button>
-        </div>
-
-        <!-- OpenAI Config -->
-        <div class="provider-config" id="config-openai">
-            <div class="form-group">
-                <label class="form-label">API Key</label>
-                <div class="input-wrapper">
-                    <input type="password" class="form-input api-key-input" id="key-openai" placeholder="sk-..." autocomplete="off">
-                    <button class="input-toggle" onclick="toggleKeyVisibility('key-openai')">👁</button>
+            <!-- OpenAI Config -->
+            <div class="provider-config" id="config-openai">
+                <div class="form-group">
+                    <label class="form-label">API Key</label>
+                    <div class="input-wrapper">
+                        <input type="password" class="form-input api-key-input" id="key-openai" placeholder="sk-..."
+                            autocomplete="off">
+                        <button class="input-toggle" onclick="toggleKeyVisibility('key-openai')">👁</button>
+                    </div>
+                    <div class="key-status" id="status-openai"><span class="status-dot empty"></span>未配置</div>
                 </div>
-                <div class="key-status" id="status-openai"><span class="status-dot empty"></span>未配置</div>
-            </div>
-            <div class="form-group">
-                <label class="form-label">模型</label>
-                <select class="form-select" id="model-openai">
-                    <option value="gpt-4o">GPT-4o</option>
-                    <option value="gpt-4o-mini">GPT-4o Mini</option>
-                    <option value="gpt-4.1">GPT-4.1</option>
-                    <option value="gpt-4.1-mini">GPT-4.1 Mini</option>
-                    <option value="gpt-4.1-nano">GPT-4.1 Nano</option>
-                    <option value="o3-mini">o3-mini</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Base URL（可选）</label>
-                <input type="text" class="form-input" id="baseurl-openai" placeholder="https://api.openai.com">
-            </div>
-            <div class="form-group">
-                <button class="test-btn" onclick="testApi('openai')">🔗 测试连通性</button>
-                <div class="test-result" id="test-result-openai"></div>
-            </div>
-        </div>
-
-        <!-- Claude Config -->
-        <div class="provider-config" id="config-claude" style="display:none">
-            <div class="form-group">
-                <label class="form-label">API Key</label>
-                <div class="input-wrapper">
-                    <input type="password" class="form-input api-key-input" id="key-claude" placeholder="sk-ant-..." autocomplete="off">
-                    <button class="input-toggle" onclick="toggleKeyVisibility('key-claude')">👁</button>
+                <div class="form-group">
+                    <label class="form-label">模型</label>
+                    <select class="form-select" id="model-openai">
+                        <option value="gpt-4o">GPT-4o</option>
+                        <option value="gpt-4o-mini">GPT-4o Mini</option>
+                        <option value="gpt-4.1">GPT-4.1</option>
+                        <option value="gpt-4.1-mini">GPT-4.1 Mini</option>
+                        <option value="gpt-4.1-nano">GPT-4.1 Nano</option>
+                        <option value="o3-mini">o3-mini</option>
+                    </select>
                 </div>
-                <div class="key-status" id="status-claude"><span class="status-dot empty"></span>未配置</div>
-            </div>
-            <div class="form-group">
-                <label class="form-label">模型</label>
-                <select class="form-select" id="model-claude">
-                    <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
-                    <option value="claude-3-7-sonnet-20250219">Claude 3.7 Sonnet</option>
-                    <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</option>
-                    <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Base URL（可选）</label>
-                <input type="text" class="form-input" id="baseurl-claude" placeholder="https://api.anthropic.com">
-            </div>
-            <div class="form-group">
-                <button class="test-btn" onclick="testApi('claude')">🔗 测试连通性</button>
-                <div class="test-result" id="test-result-claude"></div>
-            </div>
-        </div>
-
-        <!-- GLM Config -->
-        <div class="provider-config" id="config-glm" style="display:none">
-            <div class="form-group">
-                <label class="form-label">API Key</label>
-                <div class="input-wrapper">
-                    <input type="password" class="form-input api-key-input" id="key-glm" placeholder="输入智谱 API Key" autocomplete="off">
-                    <button class="input-toggle" onclick="toggleKeyVisibility('key-glm')">👁</button>
+                <div class="form-group">
+                    <label class="form-label">Base URL（可选）</label>
+                    <input type="text" class="form-input" id="baseurl-openai" placeholder="https://api.openai.com">
                 </div>
-                <div class="key-status" id="status-glm"><span class="status-dot empty"></span>未配置</div>
-            </div>
-            <div class="form-group">
-                <label class="form-label">模型</label>
-                <select class="form-select" id="model-glm">
-                    <option value="GLM-4.1V-9B-Thinking">GLM-4.1V-9B-Thinking</option>
-                    <option value="glm-4-plus">GLM-4 Plus</option>
-                    <option value="glm-4-long">GLM-4 Long</option>
-                    <option value="glm-4-flash">GLM-4 Flash</option>
-                    <option value="glm-4-flashx">GLM-4 FlashX</option>
-                    <option value="glm-5-plus">GLM-5 Plus（如可用）</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Base URL（可选）</label>
-                <input type="text" class="form-input" id="baseurl-glm" placeholder="https://open.bigmodel.cn">
-            </div>
-            <div class="form-group">
-                <button class="test-btn" onclick="testApi('glm')">🔗 测试连通性</button>
-                <div class="test-result" id="test-result-glm"></div>
-            </div>
-        </div>
-
-        <!-- DeepSeek Config -->
-        <div class="provider-config" id="config-deepseek" style="display:none">
-            <div class="form-group">
-                <label class="form-label">API Key</label>
-                <div class="input-wrapper">
-                    <input type="password" class="form-input api-key-input" id="key-deepseek" placeholder="sk-..." autocomplete="off">
-                    <button class="input-toggle" onclick="toggleKeyVisibility('key-deepseek')">👁</button>
+                <div class="form-group">
+                    <button class="test-btn" onclick="testApi('openai')">🔗 测试连通性</button>
+                    <div class="test-result" id="test-result-openai"></div>
                 </div>
-                <div class="key-status" id="status-deepseek"><span class="status-dot empty"></span>未配置</div>
             </div>
-            <div class="form-group">
-                <label class="form-label">模型</label>
-                <select class="form-select" id="model-deepseek">
-                    <option value="deepseek-chat">DeepSeek Chat</option>
-                    <option value="deepseek-reasoner">DeepSeek Reasoner</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Base URL（可选）</label>
-                <input type="text" class="form-input" id="baseurl-deepseek" placeholder="https://api.deepseek.com">
-            </div>
-            <div class="form-group">
-                <button class="test-btn" onclick="testApi('deepseek')">🔗 测试连通性</button>
-                <div class="test-result" id="test-result-deepseek"></div>
-            </div>
-        </div>
 
-        <!-- Gemini Config -->
-        <div class="provider-config" id="config-gemini" style="display:none">
-            <div class="form-group">
-                <label class="form-label">API Key</label>
-                <div class="input-wrapper">
-                    <input type="password" class="form-input api-key-input" id="key-gemini" placeholder="AIzaSy..." autocomplete="off">
-                    <button class="input-toggle" onclick="toggleKeyVisibility('key-gemini')">👁</button>
+            <!-- Claude Config -->
+            <div class="provider-config" id="config-claude" style="display:none">
+                <div class="form-group">
+                    <label class="form-label">API Key</label>
+                    <div class="input-wrapper">
+                        <input type="password" class="form-input api-key-input" id="key-claude" placeholder="sk-ant-..."
+                            autocomplete="off">
+                        <button class="input-toggle" onclick="toggleKeyVisibility('key-claude')">👁</button>
+                    </div>
+                    <div class="key-status" id="status-claude"><span class="status-dot empty"></span>未配置</div>
                 </div>
-                <div class="key-status" id="status-gemini"><span class="status-dot empty"></span>未配置</div>
+                <div class="form-group">
+                    <label class="form-label">模型</label>
+                    <select class="form-select" id="model-claude">
+                        <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
+                        <option value="claude-3-7-sonnet-20250219">Claude 3.7 Sonnet</option>
+                        <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</option>
+                        <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Base URL（可选）</label>
+                    <input type="text" class="form-input" id="baseurl-claude" placeholder="https://api.anthropic.com">
+                </div>
+                <div class="form-group">
+                    <button class="test-btn" onclick="testApi('claude')">🔗 测试连通性</button>
+                    <div class="test-result" id="test-result-claude"></div>
+                </div>
             </div>
-            <div class="form-group">
-                <label class="form-label">模型</label>
-                <select class="form-select" id="model-gemini">
-                    <option value="gemini-3-flash-preview">Gemini 3 Flash Preview</option>
-                    <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview</option>
-                    <option value="gemini-3.1-flash-lite-preview">Gemini 3.1 Flash Lite Preview</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Base URL（可选）</label>
-                <input type="text" class="form-input" id="baseurl-gemini" placeholder="https://generativelanguage.googleapis.com">
-            </div>
-            <div class="form-group">
-                <button class="test-btn" onclick="testApi('gemini')">🔗 测试连通性</button>
-                <div class="test-result" id="test-result-gemini"></div>
-            </div>
-        </div>
 
-        <div style="margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border-color);">
-            <button class="modal-btn primary" style="width:100%;" id="btn-save-settings">💾 保存配置</button>
+            <!-- GLM Config -->
+            <div class="provider-config" id="config-glm" style="display:none">
+                <div class="form-group">
+                    <label class="form-label">API Key</label>
+                    <div class="input-wrapper">
+                        <input type="password" class="form-input api-key-input" id="key-glm" placeholder="输入智谱 API Key"
+                            autocomplete="off">
+                        <button class="input-toggle" onclick="toggleKeyVisibility('key-glm')">👁</button>
+                    </div>
+                    <div class="key-status" id="status-glm"><span class="status-dot empty"></span>未配置</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">模型</label>
+                    <select class="form-select" id="model-glm">
+                        <option value="GLM-4.1V-9B-Thinking">GLM-4.1V-9B-Thinking</option>
+                        <option value="glm-4-plus">GLM-4 Plus</option>
+                        <option value="glm-4-long">GLM-4 Long</option>
+                        <option value="glm-4-flash">GLM-4 Flash</option>
+                        <option value="glm-4-flashx">GLM-4 FlashX</option>
+                        <option value="glm-5-plus">GLM-5 Plus（如可用）</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Base URL（可选）</label>
+                    <input type="text" class="form-input" id="baseurl-glm" placeholder="https://open.bigmodel.cn">
+                </div>
+                <div class="form-group">
+                    <button class="test-btn" onclick="testApi('glm')">🔗 测试连通性</button>
+                    <div class="test-result" id="test-result-glm"></div>
+                </div>
+            </div>
+
+            <!-- DeepSeek Config -->
+            <div class="provider-config" id="config-deepseek" style="display:none">
+                <div class="form-group">
+                    <label class="form-label">API Key</label>
+                    <div class="input-wrapper">
+                        <input type="password" class="form-input api-key-input" id="key-deepseek" placeholder="sk-..."
+                            autocomplete="off">
+                        <button class="input-toggle" onclick="toggleKeyVisibility('key-deepseek')">👁</button>
+                    </div>
+                    <div class="key-status" id="status-deepseek"><span class="status-dot empty"></span>未配置</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">模型</label>
+                    <select class="form-select" id="model-deepseek">
+                        <option value="deepseek-chat">DeepSeek Chat</option>
+                        <option value="deepseek-reasoner">DeepSeek Reasoner</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Base URL（可选）</label>
+                    <input type="text" class="form-input" id="baseurl-deepseek" placeholder="https://api.deepseek.com">
+                </div>
+                <div class="form-group">
+                    <button class="test-btn" onclick="testApi('deepseek')">🔗 测试连通性</button>
+                    <div class="test-result" id="test-result-deepseek"></div>
+                </div>
+            </div>
+
+            <!-- Gemini Config -->
+            <div class="provider-config" id="config-gemini" style="display:none">
+                <div class="form-group">
+                    <label class="form-label">API Key</label>
+                    <div class="input-wrapper">
+                        <input type="password" class="form-input api-key-input" id="key-gemini" placeholder="AIzaSy..."
+                            autocomplete="off">
+                        <button class="input-toggle" onclick="toggleKeyVisibility('key-gemini')">👁</button>
+                    </div>
+                    <div class="key-status" id="status-gemini"><span class="status-dot empty"></span>未配置</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">模型</label>
+                    <select class="form-select" id="model-gemini">
+                        <option value="gemini-3-flash-preview">Gemini 3 Flash Preview</option>
+                        <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview</option>
+                        <option value="gemini-3.1-flash-lite-preview">Gemini 3.1 Flash Lite Preview</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Base URL（可选）</label>
+                    <input type="text" class="form-input" id="baseurl-gemini"
+                        placeholder="https://generativelanguage.googleapis.com">
+                </div>
+                <div class="form-group">
+                    <button class="test-btn" onclick="testApi('gemini')">🔗 测试连通性</button>
+                    <div class="test-result" id="test-result-gemini"></div>
+                </div>
+            </div>
+
+            <div style="margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border-color);">
+                <button class="modal-btn primary" style="width:100%;" id="btn-save-settings">💾 保存配置</button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Bottom Prompt Bar -->
-<div class="bottom-bar">
-    <div class="generating-indicator" id="generating-indicator">
-        <div class="mini-spinner"></div>
-        <span class="gen-text" id="gen-text">AI 正在生成...</span>
-    </div>
-    <div class="prompt-container" id="prompt-container">
-        <div class="provider-indicator" id="current-provider-label" title="点击切换提供商">
-            <span>🤖</span>
-            <span id="provider-name-text">OpenAI</span>
+    <!-- Bottom Prompt Bar -->
+    <div class="bottom-bar">
+        <div class="generating-indicator" id="generating-indicator">
+            <div class="mini-spinner"></div>
+            <span class="gen-text" id="gen-text">AI 正在生成...</span>
         </div>
-        <textarea class="prompt-input" id="prompt-input" placeholder="描述你想要的体素模型，例如：一个红色蘑菇、一座中世纪城堡、一只像素猫..." rows="1"></textarea>
-        <button class="generate-btn" id="btn-generate" disabled>
-            <span>✨</span>
-            <span>生成</span>
-        </button>
-    </div>
-</div>
-
-<!-- Console Panel -->
-<div class="console-panel" id="console-panel">
-    <div class="console-header">
-        <div class="console-header-left">
-            <div class="console-dot" id="console-dot"></div>
-            <h4>控制台</h4>
-        </div>
-        <div class="console-actions">
-            <button class="console-action-btn" onclick="clearConsole()" title="清空">🗑</button>
-            <button class="console-action-btn" id="btn-close-console" title="关闭">✕</button>
+        <div class="prompt-container" id="prompt-container">
+            <div class="provider-indicator" id="current-provider-label" title="点击切换提供商">
+                <span>🤖</span>
+                <span id="provider-name-text">OpenAI</span>
+            </div>
+            <textarea class="prompt-input" id="prompt-input" placeholder="描述你想要的体素模型，例如：一个红色蘑菇、一座中世纪城堡、一只像素猫..."
+                rows="1"></textarea>
+            <button class="generate-btn" id="btn-generate" disabled>
+                <span>✨</span>
+                <span>生成</span>
+            </button>
         </div>
     </div>
-    <div class="console-body" id="console-body"></div>
-</div>
 
-<!-- JSON Export Modal -->
-<div class="modal-overlay" id="modal-export">
-    <div class="modal-card">
-        <div class="modal-header">
-            <h3>📤 导出 JSON</h3>
-            <button class="panel-close" onclick="closeModal('modal-export')">✕</button>
+    <!-- Console Panel -->
+    <div class="console-panel" id="console-panel">
+        <div class="console-header">
+            <div class="console-header-left">
+                <div class="console-dot" id="console-dot"></div>
+                <h4>控制台</h4>
+            </div>
+            <div class="console-actions">
+                <button class="console-action-btn" onclick="clearConsole()" title="清空">🗑</button>
+                <button class="console-action-btn" id="btn-close-console" title="关闭">✕</button>
+            </div>
         </div>
-        <div class="modal-body">
-            <textarea id="export-json-text" readonly></textarea>
-        </div>
-        <div class="modal-footer">
-            <button class="modal-btn" onclick="closeModal('modal-export')">关闭</button>
-            <button class="modal-btn primary" onclick="copyExportJson()">📋 复制</button>
-            <button class="modal-btn primary" onclick="downloadJson()">💾 JSON</button>
-            <button class="modal-btn primary" onclick="downloadVox()" style="background:linear-gradient(135deg,#10b981,#059669);border-color:#059669;">🎲 .VOX</button>
-            <button class="modal-btn primary" onclick="downloadObj()" style="background:linear-gradient(135deg,#3b82f6,#2563eb);border-color:#2563eb;">🧊 .OBJ</button>
-            <button class="modal-btn primary" onclick="downloadGlb()" style="background:linear-gradient(135deg,#eab308,#ca8a04);border-color:#ca8a04;">🟡 .GLB</button>
+        <div class="console-body" id="console-body"></div>
+    </div>
+
+    <!-- JSON Export Modal -->
+    <div class="modal-overlay" id="modal-export">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>📤 导出 JSON</h3>
+                <button class="panel-close" onclick="closeModal('modal-export')">✕</button>
+            </div>
+            <div class="modal-body">
+                <textarea id="export-json-text" readonly></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" onclick="closeModal('modal-export')">关闭</button>
+                <button class="modal-btn primary" onclick="copyExportJson()">📋 复制</button>
+                <button class="modal-btn primary" onclick="downloadJson()">💾 JSON</button>
+                <button class="modal-btn primary" onclick="downloadVox()"
+                    style="background:linear-gradient(135deg,#10b981,#059669);border-color:#059669;">🎲 .VOX</button>
+                <button class="modal-btn primary" onclick="downloadObj()"
+                    style="background:linear-gradient(135deg,#3b82f6,#2563eb);border-color:#2563eb;">🧊 .OBJ</button>
+                <button class="modal-btn primary" onclick="downloadOptimizedObj()"
+                    style="background:linear-gradient(135deg,#6366f1,#4f46e5);border-color:#4f46e5;">🧊 精简 .OBJ</button>
+                <button class="modal-btn primary" onclick="downloadGlb()"
+                    style="background:linear-gradient(135deg,#eab308,#ca8a04);border-color:#ca8a04;">🟡 .GLB</button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- JSON Import Modal -->
-<div class="modal-overlay" id="modal-import">
-    <div class="modal-card">
-        <div class="modal-header">
-            <h3>📥 导入 JSON</h3>
-            <button class="panel-close" onclick="closeModal('modal-import')">✕</button>
-        </div>
-        <div class="modal-body">
-            <textarea id="import-json-text" placeholder='粘贴 JSON 数组，格式如：[{"x":0,"y":0,"z":0,"color":"#FF5500"}, ...]'></textarea>
-        </div>
-        <div class="modal-footer">
-            <button class="modal-btn" onclick="closeModal('modal-import')">取消</button>
-            <button class="modal-btn primary" onclick="doImportJson()">导入</button>
+    <!-- JSON Import Modal -->
+    <div class="modal-overlay" id="modal-import">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>📥 导入 JSON</h3>
+                <button class="panel-close" onclick="closeModal('modal-import')">✕</button>
+            </div>
+            <div class="modal-body">
+                <textarea id="import-json-text"
+                    placeholder='粘贴 JSON 数组，格式如：[{"x":0,"y":0,"z":0,"color":"#FF5500"}, ...]'></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" onclick="closeModal('modal-import')">取消</button>
+                <button class="modal-btn primary" onclick="doImportJson()">导入</button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Toast Container -->
-<div class="toast-container" id="toast-container"></div>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
 
-<!-- Drop Overlay & File Input -->
-<div id="drop-overlay" class="drop-overlay">
-    <div class="drop-message">
-        <span style="font-size: 48px; display: block; margin-bottom: 16px;">📥</span>
-        松开鼠标导入 JSON 文件
+    <!-- Drop Overlay & File Input -->
+    <div id="drop-overlay" class="drop-overlay">
+        <div class="drop-message">
+            <span style="font-size: 48px; display: block; margin-bottom: 16px;">📥</span>
+            松开鼠标导入 JSON 文件
+        </div>
     </div>
-</div>
-<input type="file" id="file-import-input" accept=".json" style="display:none">
+    <input type="file" id="file-import-input" accept=".json" style="display:none">
 
-<!-- Three.js via importmap -->
-<script type="importmap">
+    <!-- Three.js via importmap -->
+    <script type="importmap">
 {
     "imports": {
         "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
@@ -1115,498 +1413,498 @@
 }
 </script>
 
-<script type="module">
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 
-// ======================== VOXEL ENGINE ========================
-class VoxelEngine {
-    constructor(container) {
-        this.container = container;
-        this.voxels = [];      // { x, y, z, color: THREE.Color }
-        this.instanceMesh = null;
-        this.dummy = new THREE.Object3D();
+        // ======================== VOXEL ENGINE ========================
+        class VoxelEngine {
+            constructor(container) {
+                this.container = container;
+                this.voxels = [];      // { x, y, z, color: THREE.Color }
+                this.instanceMesh = null;
+                this.dummy = new THREE.Object3D();
 
-        const VOXEL_SIZE = 1;
-        const FLOOR_Y = -12;
-        const BG_COLOR = 0x0f0f17;
+                const VOXEL_SIZE = 1;
+                const FLOOR_Y = -12;
+                const BG_COLOR = 0x0f0f17;
 
-        this.VOXEL_SIZE = VOXEL_SIZE;
-        this.FLOOR_Y = FLOOR_Y;
+                this.VOXEL_SIZE = VOXEL_SIZE;
+                this.FLOOR_Y = FLOOR_Y;
 
-        // Scene
-        this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(BG_COLOR);
-        this.scene.fog = new THREE.Fog(BG_COLOR, 80, 180);
+                // Scene
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(BG_COLOR);
+                this.scene.fog = new THREE.Fog(BG_COLOR, 80, 180);
 
-        // Camera
-        this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.camera.position.set(30, 30, 60);
+                // Camera
+                this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+                this.camera.position.set(30, 30, 60);
 
-        // Renderer
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        this.renderer.shadowMap.enabled = true;
-        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        container.appendChild(this.renderer.domElement);
+                // Renderer
+                this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                container.appendChild(this.renderer.domElement);
 
-        // Controls
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.enableDamping = true;
-        this.controls.autoRotate = true;
-        this.controls.autoRotateSpeed = 0.5;
-        this.controls.target.set(0, 5, 0);
+                // Controls
+                this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+                this.controls.enableDamping = true;
+                this.controls.autoRotate = true;
+                this.controls.autoRotateSpeed = 0.5;
+                this.controls.target.set(0, 5, 0);
 
-        // Lights
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        this.scene.add(ambientLight);
+                // Lights
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+                this.scene.add(ambientLight);
 
-        const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
-        dirLight.position.set(50, 80, 30);
-        dirLight.castShadow = true;
-        dirLight.shadow.mapSize.width = 2048;
-        dirLight.shadow.mapSize.height = 2048;
-        dirLight.shadow.camera.left = -40;
-        dirLight.shadow.camera.right = 40;
-        dirLight.shadow.camera.top = 40;
-        dirLight.shadow.camera.bottom = -40;
-        this.scene.add(dirLight);
+                const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+                dirLight.position.set(50, 80, 30);
+                dirLight.castShadow = true;
+                dirLight.shadow.mapSize.width = 2048;
+                dirLight.shadow.mapSize.height = 2048;
+                dirLight.shadow.camera.left = -40;
+                dirLight.shadow.camera.right = 40;
+                dirLight.shadow.camera.top = 40;
+                dirLight.shadow.camera.bottom = -40;
+                this.scene.add(dirLight);
 
-        const rimLight = new THREE.DirectionalLight(0x6366f1, 0.4);
-        rimLight.position.set(-30, 20, -40);
-        this.scene.add(rimLight);
+                const rimLight = new THREE.DirectionalLight(0x6366f1, 0.4);
+                rimLight.position.set(-30, 20, -40);
+                this.scene.add(rimLight);
 
-        // Floor
-        const floorMat = new THREE.MeshStandardMaterial({
-            color: 0x1a1a2e,
-            roughness: 0.9,
-            metalness: 0.1
-        });
-        const floor = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), floorMat);
-        floor.rotation.x = -Math.PI / 2;
-        floor.position.y = FLOOR_Y;
-        floor.receiveShadow = true;
-        this.scene.add(floor);
+                // Floor
+                const floorMat = new THREE.MeshStandardMaterial({
+                    color: 0x1a1a2e,
+                    roughness: 0.9,
+                    metalness: 0.1
+                });
+                const floor = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), floorMat);
+                floor.rotation.x = -Math.PI / 2;
+                floor.position.y = FLOOR_Y;
+                floor.receiveShadow = true;
+                this.scene.add(floor);
 
-        // Grid helper
-        const gridHelper = new THREE.GridHelper(80, 40, 0x2a2a4a, 0x1a1a3e);
-        gridHelper.position.y = FLOOR_Y + 0.01;
-        this.scene.add(gridHelper);
+                // Grid helper
+                const gridHelper = new THREE.GridHelper(80, 40, 0x2a2a4a, 0x1a1a3e);
+                gridHelper.position.y = FLOOR_Y + 0.01;
+                this.scene.add(gridHelper);
 
-        // Animation loop
-        this.animate = this.animate.bind(this);
-        this.animate();
-    }
-
-    loadModel(data) {
-        // Clear existing
-        if (this.instanceMesh) {
-            this.scene.remove(this.instanceMesh);
-            this.instanceMesh.geometry.dispose();
-            if (Array.isArray(this.instanceMesh.material)) {
-                this.instanceMesh.material.forEach(m => m.dispose());
-            } else {
-                this.instanceMesh.material.dispose();
+                // Animation loop
+                this.animate = this.animate.bind(this);
+                this.animate();
             }
-            this.instanceMesh = null;
-        }
 
-        if (!data || data.length === 0) {
-            this.voxels = [];
-            return;
-        }
-
-        this.voxels = data.map((v, i) => {
-            const c = new THREE.Color(v.color);
-            c.offsetHSL(0, 0, (Math.random() * 0.08) - 0.04);
-            return { x: v.x, y: v.y, z: v.z, color: c };
-        });
-
-        const geo = new THREE.BoxGeometry(
-            this.VOXEL_SIZE - 0.05,
-            this.VOXEL_SIZE - 0.05,
-            this.VOXEL_SIZE - 0.05
-        );
-        const mat = new THREE.MeshStandardMaterial({ roughness: 0.7, metalness: 0.15 });
-        this.instanceMesh = new THREE.InstancedMesh(geo, mat, this.voxels.length);
-        this.instanceMesh.castShadow = true;
-        this.instanceMesh.receiveShadow = true;
-        this.scene.add(this.instanceMesh);
-
-        this.draw();
-    }
-
-    draw() {
-        if (!this.instanceMesh) return;
-        this.voxels.forEach((v, i) => {
-            this.dummy.position.set(v.x, v.y, v.z);
-            this.dummy.rotation.set(0, 0, 0);
-            this.dummy.updateMatrix();
-            this.instanceMesh.setMatrixAt(i, this.dummy.matrix);
-            this.instanceMesh.setColorAt(i, v.color);
-        });
-        this.instanceMesh.instanceMatrix.needsUpdate = true;
-        if (this.instanceMesh.instanceColor) {
-            this.instanceMesh.instanceColor.needsUpdate = true;
-        }
-    }
-
-    animate() {
-        requestAnimationFrame(this.animate);
-        this.controls.update();
-        this.renderer.render(this.scene, this.camera);
-    }
-
-    handleResize() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-    }
-
-    setAutoRotate(enabled) {
-        this.controls.autoRotate = enabled;
-    }
-
-    getAutoRotate() {
-        return this.controls.autoRotate;
-    }
-
-    getJsonData() {
-        return this.voxels.map((v, i) => ({
-            x: +v.x.toFixed(2),
-            y: +v.y.toFixed(2),
-            z: +v.z.toFixed(2),
-            color: '#' + v.color.getHexString()
-        }));
-    }
-
-    getVoxelCount() {
-        return this.voxels.length;
-    }
-
-    clear() {
-        this.loadModel([]);
-    }
-}
-
-// ======================== VOX FILE BUILDER ========================
-function buildVoxFile(voxelData) {
-    // MagicaVoxel .vox format v150
-    // Coordinate mapping: Three.js (X-right, Y-up, Z-forward) → VOX (X-right, Y-forward, Z-up)
-    // vox_x = our_x, vox_y = our_z, vox_z = our_y
-
-    if (!voxelData || voxelData.length === 0) throw new Error('No voxel data to export');
-
-    // 1. Normalize coordinates to 0-255 range and remap axes
-    let minX = Infinity, minY = Infinity, minZ = Infinity;
-    let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
-
-    const mapped = voxelData.map(v => {
-        // Remap: vox_x = our_x, vox_y = our_z, vox_z = our_y
-        const vx = Math.round(v.x);
-        const vy = Math.round(v.z);
-        const vz = Math.round(v.y);
-        minX = Math.min(minX, vx); maxX = Math.max(maxX, vx);
-        minY = Math.min(minY, vy); maxY = Math.max(maxY, vy);
-        minZ = Math.min(minZ, vz); maxZ = Math.max(maxZ, vz);
-        return { vx, vy, vz, color: v.color };
-    });
-
-    // Shift so all coords are >= 0
-    const offsetX = -minX;
-    const offsetY = -minY;
-    const offsetZ = -minZ;
-
-    const sizeX = maxX - minX + 1;
-    const sizeY = maxY - minY + 1;
-    const sizeZ = maxZ - minZ + 1;
-
-    // Clamp to 256 (MagicaVoxel max)
-    if (sizeX > 256 || sizeY > 256 || sizeZ > 256) {
-        logToConsole(`⚠️ 模型尺寸 ${sizeX}x${sizeY}x${sizeZ} 超过 MagicaVoxel 限制(256)，将被裁剪`, 'warn');
-    }
-
-    // 2. Build color palette (max 255 colors, index 1-255)
-    const colorMap = new Map(); // hex string → palette index (1-based)
-    const palette = []; // array of {r,g,b,a}
-    
-    // Collect unique colors
-    for (const v of mapped) {
-        let c = v.color;
-        let hex;
-        if (typeof c === 'number') {
-            hex = c.toString(16).padStart(6, '0');
-        } else if (typeof c === 'string') {
-            hex = c.replace('#', '');
-        } else if (c && typeof c.getHexString === 'function') {
-            hex = c.getHexString();
-        } else {
-            hex = 'cccccc';
-        }
-        hex = hex.toLowerCase();
-        if (!colorMap.has(hex)) {
-            if (palette.length >= 255) continue; // palette full
-            palette.push({
-                r: parseInt(hex.substring(0, 2), 16),
-                g: parseInt(hex.substring(2, 4), 16),
-                b: parseInt(hex.substring(4, 6), 16),
-                a: 255
-            });
-            colorMap.set(hex, palette.length); // 1-based index
-        }
-    }
-
-    // 3. Build voxel list with palette indices, dedup and clamp
-    const voxelSet = new Set();
-    const voxels = [];
-    for (const v of mapped) {
-        const x = v.vx + offsetX;
-        const y = v.vy + offsetY;
-        const z = v.vz + offsetZ;
-        if (x < 0 || x > 255 || y < 0 || y > 255 || z < 0 || z > 255) continue;
-
-        const key = `${x},${y},${z}`;
-        if (voxelSet.has(key)) continue;
-        voxelSet.add(key);
-
-        let hex;
-        const c = v.color;
-        if (typeof c === 'number') hex = c.toString(16).padStart(6, '0');
-        else if (typeof c === 'string') hex = c.replace('#', '');
-        else if (c && typeof c.getHexString === 'function') hex = c.getHexString();
-        else hex = 'cccccc';
-        hex = hex.toLowerCase();
-
-        const colorIdx = colorMap.get(hex) || 1;
-        voxels.push({ x, y, z, i: colorIdx });
-    }
-
-    // 4. Build binary chunks
-    function writeInt32(view, offset, val) {
-        view.setInt32(offset, val, true); // little-endian
-        return offset + 4;
-    }
-
-    // SIZE chunk: 12 bytes content (3 × int32)
-    const sizeContent = 12;
-    const sizeChunkSize = 4 + 4 + 4 + sizeContent; // id + contentSize + childrenSize + content
-
-    // XYZI chunk: 4 + numVoxels*4 bytes content
-    const xyziContent = 4 + voxels.length * 4;
-    const xyziChunkSize = 4 + 4 + 4 + xyziContent;
-
-    // RGBA chunk: 256 * 4 bytes content
-    const rgbaContent = 256 * 4;
-    const rgbaChunkSize = 4 + 4 + 4 + rgbaContent;
-
-    // MAIN chunk
-    const mainChildrenSize = sizeChunkSize + xyziChunkSize + rgbaChunkSize;
-    const mainChunkSize = 4 + 4 + 4 + mainChildrenSize; // id + contentSize + childrenSize + children
-
-    // Total file: magic(4) + version(4) + mainChunk
-    const totalSize = 4 + 4 + mainChunkSize;
-    const buffer = new ArrayBuffer(totalSize);
-    const view = new DataView(buffer);
-    const bytes = new Uint8Array(buffer);
-    let pos = 0;
-
-    // Magic: "VOX "
-    bytes[pos++] = 0x56; bytes[pos++] = 0x4F; bytes[pos++] = 0x58; bytes[pos++] = 0x20;
-    // Version: 150
-    pos = writeInt32(view, pos, 150);
-
-    // MAIN chunk header
-    bytes[pos++] = 0x4D; bytes[pos++] = 0x41; bytes[pos++] = 0x49; bytes[pos++] = 0x4E; // "MAIN"
-    pos = writeInt32(view, pos, 0); // content size = 0
-    pos = writeInt32(view, pos, mainChildrenSize);
-
-    // SIZE chunk
-    bytes[pos++] = 0x53; bytes[pos++] = 0x49; bytes[pos++] = 0x5A; bytes[pos++] = 0x45; // "SIZE"
-    pos = writeInt32(view, pos, sizeContent);
-    pos = writeInt32(view, pos, 0); // children size
-    pos = writeInt32(view, pos, Math.min(sizeX, 256));
-    pos = writeInt32(view, pos, Math.min(sizeY, 256));
-    pos = writeInt32(view, pos, Math.min(sizeZ, 256));
-
-    // XYZI chunk
-    bytes[pos++] = 0x58; bytes[pos++] = 0x59; bytes[pos++] = 0x5A; bytes[pos++] = 0x49; // "XYZI"
-    pos = writeInt32(view, pos, xyziContent);
-    pos = writeInt32(view, pos, 0); // children size
-    pos = writeInt32(view, pos, voxels.length);
-    for (const v of voxels) {
-        bytes[pos++] = v.x & 0xFF;
-        bytes[pos++] = v.y & 0xFF;
-        bytes[pos++] = v.z & 0xFF;
-        bytes[pos++] = v.i & 0xFF;
-    }
-
-    // RGBA chunk (palette)
-    bytes[pos++] = 0x52; bytes[pos++] = 0x47; bytes[pos++] = 0x42; bytes[pos++] = 0x41; // "RGBA"
-    pos = writeInt32(view, pos, rgbaContent);
-    pos = writeInt32(view, pos, 0); // children size
-    // Index 0 is unused in the file, palette entries 1-255 map to file positions 0-254
-    for (let i = 0; i < 256; i++) {
-        if (i < palette.length) {
-            bytes[pos++] = palette[i].r;
-            bytes[pos++] = palette[i].g;
-            bytes[pos++] = palette[i].b;
-            bytes[pos++] = palette[i].a;
-        } else {
-            bytes[pos++] = 0; bytes[pos++] = 0; bytes[pos++] = 0; bytes[pos++] = 255;
-        }
-    }
-
-    return buffer;
-}
-
-// ======================== AI API LAYER ========================
-const PROVIDERS = {
-    openai: {
-        name: 'OpenAI',
-        defaultBaseUrl: 'https://api.openai.com',
-        buildRequest(apiKey, model, prompt, baseUrl, complexity, maxSize) {
-            const url = `${baseUrl || this.defaultBaseUrl}/v1/chat/completions`;
-            return {
-                url,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
-                },
-                body: {
-                    model,
-                    messages: [
-                        { role: 'system', content: buildSystemPrompt(complexity, maxSize) },
-                        { role: 'user', content: buildUserPrompt(prompt) }
-                    ],
-                    temperature: 0.7,
-                    response_format: { type: 'json_object' }
-                }
-            };
-        },
-        parseResponse(data) {
-            const text = data.choices?.[0]?.message?.content || '';
-            return extractJsonArray(text);
-        }
-    },
-    claude: {
-        name: 'Claude',
-        defaultBaseUrl: 'https://api.anthropic.com',
-        buildRequest(apiKey, model, prompt, baseUrl, complexity, maxSize) {
-            const url = `${baseUrl || this.defaultBaseUrl}/v1/messages`;
-            return {
-                url,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-key': apiKey,
-                    'anthropic-version': '2023-06-01',
-                    'anthropic-dangerous-direct-browser-access': 'true'
-                },
-                body: {
-                    model,
-                    max_tokens: 16384,
-                    system: buildSystemPrompt(complexity, maxSize),
-                    messages: [
-                        { role: 'user', content: buildUserPrompt(prompt) }
-                    ]
-                }
-            };
-        },
-        parseResponse(data) {
-            const text = data.content?.[0]?.text || '';
-            return extractJsonArray(text);
-        }
-    },
-    glm: {
-        name: 'GLM',
-        defaultBaseUrl: 'https://open.bigmodel.cn',
-        buildRequest(apiKey, model, prompt, baseUrl, complexity, maxSize) {
-            const url = `${baseUrl || this.defaultBaseUrl}/api/paas/v4/chat/completions`;
-            return {
-                url,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
-                },
-                body: {
-                    model,
-                    messages: [
-                        { role: 'system', content: buildSystemPrompt(complexity, maxSize) },
-                        { role: 'user', content: buildUserPrompt(prompt) }
-                    ],
-                    temperature: 0.7
-                }
-            };
-        },
-        parseResponse(data) {
-            const text = data.choices?.[0]?.message?.content || '';
-            return extractJsonArray(text);
-        }
-    },
-    deepseek: {
-        name: 'DeepSeek',
-        defaultBaseUrl: 'https://api.deepseek.com',
-        buildRequest(apiKey, model, prompt, baseUrl, complexity, maxSize) {
-            const url = `${baseUrl || this.defaultBaseUrl}/v1/chat/completions`;
-            return {
-                url,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
-                },
-                body: {
-                    model,
-                    messages: [
-                        { role: 'system', content: buildSystemPrompt(complexity, maxSize) },
-                        { role: 'user', content: buildUserPrompt(prompt) }
-                    ],
-                    temperature: 0.7
-                }
-            };
-        },
-        parseResponse(data) {
-            const text = data.choices?.[0]?.message?.content || '';
-            return extractJsonArray(text);
-        }
-    },
-    gemini: {
-        name: 'Gemini',
-        defaultBaseUrl: 'https://generativelanguage.googleapis.com',
-        buildRequest(apiKey, model, prompt, baseUrl, complexity, maxSize) {
-            let urlBase = baseUrl || this.defaultBaseUrl;
-            if (urlBase.endsWith('/')) urlBase = urlBase.slice(0, -1);
-            const url = `${urlBase}/v1beta/models/${model}:generateContent?key=${apiKey}`;
-            return {
-                url,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: {
-                    system_instruction: {
-                        parts: { text: buildSystemPrompt(complexity, maxSize) }
-                    },
-                    contents: [
-                        { parts: [{ text: buildUserPrompt(prompt) }] }
-                    ],
-                    generationConfig: {
-                        responseMimeType: 'application/json',
-                        temperature: 0.7
+            loadModel(data) {
+                // Clear existing
+                if (this.instanceMesh) {
+                    this.scene.remove(this.instanceMesh);
+                    this.instanceMesh.geometry.dispose();
+                    if (Array.isArray(this.instanceMesh.material)) {
+                        this.instanceMesh.material.forEach(m => m.dispose());
+                    } else {
+                        this.instanceMesh.material.dispose();
                     }
+                    this.instanceMesh = null;
                 }
-            };
-        },
-        parseResponse(data) {
-            const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-            return extractJsonArray(text);
-        }
-    }
-};
 
-function buildSystemPrompt(complexity = 300, maxSize = 32) {
-    const minVoxels = Math.max(10, Math.floor(complexity * 0.8));
-    const maxVoxels = Math.floor(complexity * 1.2);
-    return `You are a 3D voxel art generator. When given a description, you produce a JSON array of voxels that form the described object.
+                if (!data || data.length === 0) {
+                    this.voxels = [];
+                    return;
+                }
+
+                this.voxels = data.map((v, i) => {
+                    const c = new THREE.Color(v.color);
+                    c.offsetHSL(0, 0, (Math.random() * 0.08) - 0.04);
+                    return { x: v.x, y: v.y, z: v.z, color: c };
+                });
+
+                const geo = new THREE.BoxGeometry(
+                    this.VOXEL_SIZE - 0.05,
+                    this.VOXEL_SIZE - 0.05,
+                    this.VOXEL_SIZE - 0.05
+                );
+                const mat = new THREE.MeshStandardMaterial({ roughness: 0.7, metalness: 0.15 });
+                this.instanceMesh = new THREE.InstancedMesh(geo, mat, this.voxels.length);
+                this.instanceMesh.castShadow = true;
+                this.instanceMesh.receiveShadow = true;
+                this.scene.add(this.instanceMesh);
+
+                this.draw();
+            }
+
+            draw() {
+                if (!this.instanceMesh) return;
+                this.voxels.forEach((v, i) => {
+                    this.dummy.position.set(v.x, v.y, v.z);
+                    this.dummy.rotation.set(0, 0, 0);
+                    this.dummy.updateMatrix();
+                    this.instanceMesh.setMatrixAt(i, this.dummy.matrix);
+                    this.instanceMesh.setColorAt(i, v.color);
+                });
+                this.instanceMesh.instanceMatrix.needsUpdate = true;
+                if (this.instanceMesh.instanceColor) {
+                    this.instanceMesh.instanceColor.needsUpdate = true;
+                }
+            }
+
+            animate() {
+                requestAnimationFrame(this.animate);
+                this.controls.update();
+                this.renderer.render(this.scene, this.camera);
+            }
+
+            handleResize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+
+            setAutoRotate(enabled) {
+                this.controls.autoRotate = enabled;
+            }
+
+            getAutoRotate() {
+                return this.controls.autoRotate;
+            }
+
+            getJsonData() {
+                return this.voxels.map((v, i) => ({
+                    x: +v.x.toFixed(2),
+                    y: +v.y.toFixed(2),
+                    z: +v.z.toFixed(2),
+                    color: '#' + v.color.getHexString()
+                }));
+            }
+
+            getVoxelCount() {
+                return this.voxels.length;
+            }
+
+            clear() {
+                this.loadModel([]);
+            }
+        }
+
+        // ======================== VOX FILE BUILDER ========================
+        function buildVoxFile(voxelData) {
+            // MagicaVoxel .vox format v150
+            // Coordinate mapping: Three.js (X-right, Y-up, Z-forward) → VOX (X-right, Y-forward, Z-up)
+            // vox_x = our_x, vox_y = our_z, vox_z = our_y
+
+            if (!voxelData || voxelData.length === 0) throw new Error('No voxel data to export');
+
+            // 1. Normalize coordinates to 0-255 range and remap axes
+            let minX = Infinity, minY = Infinity, minZ = Infinity;
+            let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
+
+            const mapped = voxelData.map(v => {
+                // Remap: vox_x = our_x, vox_y = our_z, vox_z = our_y
+                const vx = Math.round(v.x);
+                const vy = Math.round(v.z);
+                const vz = Math.round(v.y);
+                minX = Math.min(minX, vx); maxX = Math.max(maxX, vx);
+                minY = Math.min(minY, vy); maxY = Math.max(maxY, vy);
+                minZ = Math.min(minZ, vz); maxZ = Math.max(maxZ, vz);
+                return { vx, vy, vz, color: v.color };
+            });
+
+            // Shift so all coords are >= 0
+            const offsetX = -minX;
+            const offsetY = -minY;
+            const offsetZ = -minZ;
+
+            const sizeX = maxX - minX + 1;
+            const sizeY = maxY - minY + 1;
+            const sizeZ = maxZ - minZ + 1;
+
+            // Clamp to 256 (MagicaVoxel max)
+            if (sizeX > 256 || sizeY > 256 || sizeZ > 256) {
+                logToConsole(`⚠️ 模型尺寸 ${sizeX}x${sizeY}x${sizeZ} 超过 MagicaVoxel 限制(256)，将被裁剪`, 'warn');
+            }
+
+            // 2. Build color palette (max 255 colors, index 1-255)
+            const colorMap = new Map(); // hex string → palette index (1-based)
+            const palette = []; // array of {r,g,b,a}
+
+            // Collect unique colors
+            for (const v of mapped) {
+                let c = v.color;
+                let hex;
+                if (typeof c === 'number') {
+                    hex = c.toString(16).padStart(6, '0');
+                } else if (typeof c === 'string') {
+                    hex = c.replace('#', '');
+                } else if (c && typeof c.getHexString === 'function') {
+                    hex = c.getHexString();
+                } else {
+                    hex = 'cccccc';
+                }
+                hex = hex.toLowerCase();
+                if (!colorMap.has(hex)) {
+                    if (palette.length >= 255) continue; // palette full
+                    palette.push({
+                        r: parseInt(hex.substring(0, 2), 16),
+                        g: parseInt(hex.substring(2, 4), 16),
+                        b: parseInt(hex.substring(4, 6), 16),
+                        a: 255
+                    });
+                    colorMap.set(hex, palette.length); // 1-based index
+                }
+            }
+
+            // 3. Build voxel list with palette indices, dedup and clamp
+            const voxelSet = new Set();
+            const voxels = [];
+            for (const v of mapped) {
+                const x = v.vx + offsetX;
+                const y = v.vy + offsetY;
+                const z = v.vz + offsetZ;
+                if (x < 0 || x > 255 || y < 0 || y > 255 || z < 0 || z > 255) continue;
+
+                const key = `${x},${y},${z}`;
+                if (voxelSet.has(key)) continue;
+                voxelSet.add(key);
+
+                let hex;
+                const c = v.color;
+                if (typeof c === 'number') hex = c.toString(16).padStart(6, '0');
+                else if (typeof c === 'string') hex = c.replace('#', '');
+                else if (c && typeof c.getHexString === 'function') hex = c.getHexString();
+                else hex = 'cccccc';
+                hex = hex.toLowerCase();
+
+                const colorIdx = colorMap.get(hex) || 1;
+                voxels.push({ x, y, z, i: colorIdx });
+            }
+
+            // 4. Build binary chunks
+            function writeInt32(view, offset, val) {
+                view.setInt32(offset, val, true); // little-endian
+                return offset + 4;
+            }
+
+            // SIZE chunk: 12 bytes content (3 × int32)
+            const sizeContent = 12;
+            const sizeChunkSize = 4 + 4 + 4 + sizeContent; // id + contentSize + childrenSize + content
+
+            // XYZI chunk: 4 + numVoxels*4 bytes content
+            const xyziContent = 4 + voxels.length * 4;
+            const xyziChunkSize = 4 + 4 + 4 + xyziContent;
+
+            // RGBA chunk: 256 * 4 bytes content
+            const rgbaContent = 256 * 4;
+            const rgbaChunkSize = 4 + 4 + 4 + rgbaContent;
+
+            // MAIN chunk
+            const mainChildrenSize = sizeChunkSize + xyziChunkSize + rgbaChunkSize;
+            const mainChunkSize = 4 + 4 + 4 + mainChildrenSize; // id + contentSize + childrenSize + children
+
+            // Total file: magic(4) + version(4) + mainChunk
+            const totalSize = 4 + 4 + mainChunkSize;
+            const buffer = new ArrayBuffer(totalSize);
+            const view = new DataView(buffer);
+            const bytes = new Uint8Array(buffer);
+            let pos = 0;
+
+            // Magic: "VOX "
+            bytes[pos++] = 0x56; bytes[pos++] = 0x4F; bytes[pos++] = 0x58; bytes[pos++] = 0x20;
+            // Version: 150
+            pos = writeInt32(view, pos, 150);
+
+            // MAIN chunk header
+            bytes[pos++] = 0x4D; bytes[pos++] = 0x41; bytes[pos++] = 0x49; bytes[pos++] = 0x4E; // "MAIN"
+            pos = writeInt32(view, pos, 0); // content size = 0
+            pos = writeInt32(view, pos, mainChildrenSize);
+
+            // SIZE chunk
+            bytes[pos++] = 0x53; bytes[pos++] = 0x49; bytes[pos++] = 0x5A; bytes[pos++] = 0x45; // "SIZE"
+            pos = writeInt32(view, pos, sizeContent);
+            pos = writeInt32(view, pos, 0); // children size
+            pos = writeInt32(view, pos, Math.min(sizeX, 256));
+            pos = writeInt32(view, pos, Math.min(sizeY, 256));
+            pos = writeInt32(view, pos, Math.min(sizeZ, 256));
+
+            // XYZI chunk
+            bytes[pos++] = 0x58; bytes[pos++] = 0x59; bytes[pos++] = 0x5A; bytes[pos++] = 0x49; // "XYZI"
+            pos = writeInt32(view, pos, xyziContent);
+            pos = writeInt32(view, pos, 0); // children size
+            pos = writeInt32(view, pos, voxels.length);
+            for (const v of voxels) {
+                bytes[pos++] = v.x & 0xFF;
+                bytes[pos++] = v.y & 0xFF;
+                bytes[pos++] = v.z & 0xFF;
+                bytes[pos++] = v.i & 0xFF;
+            }
+
+            // RGBA chunk (palette)
+            bytes[pos++] = 0x52; bytes[pos++] = 0x47; bytes[pos++] = 0x42; bytes[pos++] = 0x41; // "RGBA"
+            pos = writeInt32(view, pos, rgbaContent);
+            pos = writeInt32(view, pos, 0); // children size
+            // Index 0 is unused in the file, palette entries 1-255 map to file positions 0-254
+            for (let i = 0; i < 256; i++) {
+                if (i < palette.length) {
+                    bytes[pos++] = palette[i].r;
+                    bytes[pos++] = palette[i].g;
+                    bytes[pos++] = palette[i].b;
+                    bytes[pos++] = palette[i].a;
+                } else {
+                    bytes[pos++] = 0; bytes[pos++] = 0; bytes[pos++] = 0; bytes[pos++] = 255;
+                }
+            }
+
+            return buffer;
+        }
+
+        // ======================== AI API LAYER ========================
+        const PROVIDERS = {
+            openai: {
+                name: 'OpenAI',
+                defaultBaseUrl: 'https://api.openai.com',
+                buildRequest(apiKey, model, prompt, baseUrl, complexity, maxSize) {
+                    const url = `${baseUrl || this.defaultBaseUrl}/v1/chat/completions`;
+                    return {
+                        url,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${apiKey}`
+                        },
+                        body: {
+                            model,
+                            messages: [
+                                { role: 'system', content: buildSystemPrompt(complexity, maxSize) },
+                                { role: 'user', content: buildUserPrompt(prompt) }
+                            ],
+                            temperature: 0.7,
+                            response_format: { type: 'json_object' }
+                        }
+                    };
+                },
+                parseResponse(data) {
+                    const text = data.choices?.[0]?.message?.content || '';
+                    return extractJsonArray(text);
+                }
+            },
+            claude: {
+                name: 'Claude',
+                defaultBaseUrl: 'https://api.anthropic.com',
+                buildRequest(apiKey, model, prompt, baseUrl, complexity, maxSize) {
+                    const url = `${baseUrl || this.defaultBaseUrl}/v1/messages`;
+                    return {
+                        url,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-api-key': apiKey,
+                            'anthropic-version': '2023-06-01',
+                            'anthropic-dangerous-direct-browser-access': 'true'
+                        },
+                        body: {
+                            model,
+                            max_tokens: 16384,
+                            system: buildSystemPrompt(complexity, maxSize),
+                            messages: [
+                                { role: 'user', content: buildUserPrompt(prompt) }
+                            ]
+                        }
+                    };
+                },
+                parseResponse(data) {
+                    const text = data.content?.[0]?.text || '';
+                    return extractJsonArray(text);
+                }
+            },
+            glm: {
+                name: 'GLM',
+                defaultBaseUrl: 'https://open.bigmodel.cn',
+                buildRequest(apiKey, model, prompt, baseUrl, complexity, maxSize) {
+                    const url = `${baseUrl || this.defaultBaseUrl}/api/paas/v4/chat/completions`;
+                    return {
+                        url,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${apiKey}`
+                        },
+                        body: {
+                            model,
+                            messages: [
+                                { role: 'system', content: buildSystemPrompt(complexity, maxSize) },
+                                { role: 'user', content: buildUserPrompt(prompt) }
+                            ],
+                            temperature: 0.7
+                        }
+                    };
+                },
+                parseResponse(data) {
+                    const text = data.choices?.[0]?.message?.content || '';
+                    return extractJsonArray(text);
+                }
+            },
+            deepseek: {
+                name: 'DeepSeek',
+                defaultBaseUrl: 'https://api.deepseek.com',
+                buildRequest(apiKey, model, prompt, baseUrl, complexity, maxSize) {
+                    const url = `${baseUrl || this.defaultBaseUrl}/v1/chat/completions`;
+                    return {
+                        url,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${apiKey}`
+                        },
+                        body: {
+                            model,
+                            messages: [
+                                { role: 'system', content: buildSystemPrompt(complexity, maxSize) },
+                                { role: 'user', content: buildUserPrompt(prompt) }
+                            ],
+                            temperature: 0.7
+                        }
+                    };
+                },
+                parseResponse(data) {
+                    const text = data.choices?.[0]?.message?.content || '';
+                    return extractJsonArray(text);
+                }
+            },
+            gemini: {
+                name: 'Gemini',
+                defaultBaseUrl: 'https://generativelanguage.googleapis.com',
+                buildRequest(apiKey, model, prompt, baseUrl, complexity, maxSize) {
+                    let urlBase = baseUrl || this.defaultBaseUrl;
+                    if (urlBase.endsWith('/')) urlBase = urlBase.slice(0, -1);
+                    const url = `${urlBase}/v1beta/models/${model}:generateContent?key=${apiKey}`;
+                    return {
+                        url,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: {
+                            system_instruction: {
+                                parts: { text: buildSystemPrompt(complexity, maxSize) }
+                            },
+                            contents: [
+                                { parts: [{ text: buildUserPrompt(prompt) }] }
+                            ],
+                            generationConfig: {
+                                responseMimeType: 'application/json',
+                                temperature: 0.7
+                            }
+                        }
+                    };
+                },
+                parseResponse(data) {
+                    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                    return extractJsonArray(text);
+                }
+            }
+        };
+
+        function buildSystemPrompt(complexity = 300, maxSize = 32) {
+            const minVoxels = Math.max(10, Math.floor(complexity * 0.8));
+            const maxVoxels = Math.floor(complexity * 1.2);
+            return `You are a 3D voxel art generator. When given a description, you produce a JSON array of voxels that form the described object.
 Each voxel is an object with integer coordinates x, y, z and a hex color string (e.g. "#FF5500").
 Rules:
 - Keep the voxel count between ${minVoxels} and ${maxVoxels} (Target: approximately ${complexity} voxels).
@@ -1617,840 +1915,1061 @@ Rules:
 - Coordinates must be integers.
 - Use vivid, varied colors appropriate for the subject.
 - Return ONLY a JSON array, no markdown, no explanation. Example: [{"x":0,"y":0,"z":0,"color":"#FF5500"}]`;
-}
+        }
 
-function buildUserPrompt(prompt) {
-    return `Generate a 3D voxel art model of: "${prompt}". Return ONLY the JSON array.`;
-}
+        function buildUserPrompt(prompt) {
+            return `Generate a 3D voxel art model of: "${prompt}". Return ONLY the JSON array.`;
+        }
 
-function extractJsonArray(text) {
-    let cleaned = text.trim();
+        function extractJsonArray(text) {
+            let cleaned = text.trim();
 
-    // Remove markdown code fences (possibly multiple)
-    cleaned = cleaned.replace(/```(?:json)?\s*/gi, '').replace(/```/g, '');
-    cleaned = cleaned.trim();
+            // Remove markdown code fences (possibly multiple)
+            cleaned = cleaned.replace(/```(?:json)?\s*/gi, '').replace(/```/g, '');
+            cleaned = cleaned.trim();
 
-    // Find array boundaries
-    const startIdx = cleaned.indexOf('[');
-    if (startIdx === -1) throw new Error('No JSON array found in response');
-    cleaned = cleaned.substring(startIdx);
+            // Find array boundaries
+            const startIdx = cleaned.indexOf('[');
+            if (startIdx === -1) throw new Error('No JSON array found in response');
+            cleaned = cleaned.substring(startIdx);
 
-    // Try direct parse first (fast path)
-    try {
-        const arr = JSON.parse(cleaned);
-        if (Array.isArray(arr)) return arr;
-    } catch (e) { /* continue to repair */ }
+            // Try direct parse first (fast path)
+            try {
+                const arr = JSON.parse(cleaned);
+                if (Array.isArray(arr)) return arr;
+            } catch (e) { /* continue to repair */ }
 
-    // Find the last ']' and try parsing up to it
-    const endIdx = cleaned.lastIndexOf(']');
-    if (endIdx > 0) {
-        const slice = cleaned.substring(0, endIdx + 1);
-        try {
-            const arr = JSON.parse(slice);
-            if (Array.isArray(arr)) return arr;
-        } catch (e) { /* continue */ }
-    }
-
-    // ---- Repair strategies ----
-
-    // Strategy 1: Fix trailing commas before ] and }
-    function fixTrailingCommas(s) {
-        return s.replace(/,\s*([\]}])/g, '$1');
-    }
-
-    // Strategy 2: Truncation recovery — find last complete object "}" and close array
-    function recoverTruncated(s) {
-        // Walk backwards from end to find last complete "}"
-        let depth = 0;
-        let lastGoodIdx = -1;
-        let inString = false;
-        let escape = false;
-
-        for (let i = 0; i < s.length; i++) {
-            const ch = s[i];
-            if (escape) { escape = false; continue; }
-            if (ch === '\\' && inString) { escape = true; continue; }
-            if (ch === '"') { inString = !inString; continue; }
-            if (inString) continue;
-
-            if (ch === '{') depth++;
-            if (ch === '}') {
-                depth--;
-                if (depth === 0) lastGoodIdx = i;
+            // Find the last ']' and try parsing up to it
+            const endIdx = cleaned.lastIndexOf(']');
+            if (endIdx > 0) {
+                const slice = cleaned.substring(0, endIdx + 1);
+                try {
+                    const arr = JSON.parse(slice);
+                    if (Array.isArray(arr)) return arr;
+                } catch (e) { /* continue */ }
             }
-            if (ch === '[' && depth === 0) { /* array open */ }
-        }
 
-        if (lastGoodIdx > 0) {
-            let repaired = s.substring(0, lastGoodIdx + 1) + ']';
-            repaired = fixTrailingCommas(repaired);
-            return repaired;
-        }
-        return null;
-    }
+            // ---- Repair strategies ----
 
-    // Try repair: fix trailing commas on full text
-    try {
-        const fixed = fixTrailingCommas(cleaned.substring(0, (endIdx > 0 ? endIdx + 1 : cleaned.length)));
-        const arr = JSON.parse(fixed);
-        if (Array.isArray(arr)) return arr;
-    } catch (e) { /* continue */ }
+            // Strategy 1: Fix trailing commas before ] and }
+            function fixTrailingCommas(s) {
+                return s.replace(/,\s*([\]}])/g, '$1');
+            }
 
-    // Try repair: truncation recovery
-    const recovered = recoverTruncated(cleaned);
-    if (recovered) {
-        try {
-            const arr = JSON.parse(recovered);
-            if (Array.isArray(arr)) {
-                logToConsole(`⚠️ JSON 被截断，已恢复 ${arr.length} 个体素（部分数据可能丢失）`, 'warn');
+            // Strategy 2: Truncation recovery — find last complete object "}" and close array
+            function recoverTruncated(s) {
+                // Walk backwards from end to find last complete "}"
+                let depth = 0;
+                let lastGoodIdx = -1;
+                let inString = false;
+                let escape = false;
+
+                for (let i = 0; i < s.length; i++) {
+                    const ch = s[i];
+                    if (escape) { escape = false; continue; }
+                    if (ch === '\\' && inString) { escape = true; continue; }
+                    if (ch === '"') { inString = !inString; continue; }
+                    if (inString) continue;
+
+                    if (ch === '{') depth++;
+                    if (ch === '}') {
+                        depth--;
+                        if (depth === 0) lastGoodIdx = i;
+                    }
+                    if (ch === '[' && depth === 0) { /* array open */ }
+                }
+
+                if (lastGoodIdx > 0) {
+                    let repaired = s.substring(0, lastGoodIdx + 1) + ']';
+                    repaired = fixTrailingCommas(repaired);
+                    return repaired;
+                }
+                return null;
+            }
+
+            // Try repair: fix trailing commas on full text
+            try {
+                const fixed = fixTrailingCommas(cleaned.substring(0, (endIdx > 0 ? endIdx + 1 : cleaned.length)));
+                const arr = JSON.parse(fixed);
+                if (Array.isArray(arr)) return arr;
+            } catch (e) { /* continue */ }
+
+            // Try repair: truncation recovery
+            const recovered = recoverTruncated(cleaned);
+            if (recovered) {
+                try {
+                    const arr = JSON.parse(recovered);
+                    if (Array.isArray(arr)) {
+                        logToConsole(`⚠️ JSON 被截断，已恢复 ${arr.length} 个体素（部分数据可能丢失）`, 'warn');
+                        return arr;
+                    }
+                } catch (e) { /* continue */ }
+            }
+
+            // Strategy 3: Last resort — regex extract individual objects
+            // Match patterns like {"x":1,"y":2,"z":3,"color":"#FF0000"} with flexible key names
+            const objPattern = /\{\s*"[^"]*"\s*:\s*(?:-?\d+)\s*,\s*"[^"]*"\s*:\s*(?:-?\d+)\s*,\s*"[^"]*"\s*:\s*(?:-?\d+)\s*,\s*"[^"]*"\s*:\s*"[^"]*"\s*\}/g;
+            const matches = cleaned.match(objPattern);
+            if (matches && matches.length > 0) {
+                const arr = matches.map(m => JSON.parse(m));
+                logToConsole(`⚠️ JSON 格式严重损坏，通过正则提取了 ${arr.length} 个体素`, 'warn');
                 return arr;
             }
-        } catch (e) { /* continue */ }
-    }
 
-    // Strategy 3: Last resort — regex extract individual objects
-    // Match patterns like {"x":1,"y":2,"z":3,"color":"#FF0000"} with flexible key names
-    const objPattern = /\{\s*"[^"]*"\s*:\s*(?:-?\d+)\s*,\s*"[^"]*"\s*:\s*(?:-?\d+)\s*,\s*"[^"]*"\s*:\s*(?:-?\d+)\s*,\s*"[^"]*"\s*:\s*"[^"]*"\s*\}/g;
-    const matches = cleaned.match(objPattern);
-    if (matches && matches.length > 0) {
-        const arr = matches.map(m => JSON.parse(m));
-        logToConsole(`⚠️ JSON 格式严重损坏，通过正则提取了 ${arr.length} 个体素`, 'warn');
-        return arr;
-    }
-
-    throw new Error('无法解析 AI 返回的 JSON 数据，请重试');
-}
-
-function parseVoxelData(rawArray) {
-    return rawArray.map(v => {
-        let colorVal = v.color || v.c || '#CCCCCC';
-        let colorInt = 0xCCCCCC;
-
-        if (typeof colorVal === 'string') {
-            if (colorVal.startsWith('#')) colorVal = colorVal.substring(1);
-            colorInt = parseInt(colorVal, 16);
-        } else if (typeof colorVal === 'number') {
-            colorInt = colorVal;
+            throw new Error('无法解析 AI 返回的 JSON 数据，请重试');
         }
 
-        return {
-            x: Math.round(Number(v.x) || 0),
-            y: Math.round(Number(v.y) || 0),
-            z: Math.round(Number(v.z) || 0),
-            color: isNaN(colorInt) ? 0xCCCCCC : colorInt
+        function parseVoxelData(rawArray) {
+            return rawArray.map(v => {
+                let colorVal = v.color || v.c || '#CCCCCC';
+                let colorInt = 0xCCCCCC;
+
+                if (typeof colorVal === 'string') {
+                    if (colorVal.startsWith('#')) colorVal = colorVal.substring(1);
+                    colorInt = parseInt(colorVal, 16);
+                } else if (typeof colorVal === 'number') {
+                    colorInt = colorVal;
+                }
+
+                return {
+                    x: Math.round(Number(v.x) || 0),
+                    y: Math.round(Number(v.y) || 0),
+                    z: Math.round(Number(v.z) || 0),
+                    color: isNaN(colorInt) ? 0xCCCCCC : colorInt
+                };
+            });
+        }
+
+        // ======================== APP STATE ========================
+        let activeProvider = 'openai';
+        let engine = null;
+        let isGenerating = false;
+
+        // ======================== CONSOLE ========================
+        function logToConsole(msg, type = '') {
+            const body = document.getElementById('console-body');
+            const line = document.createElement('div');
+            line.className = `log-line ${type}`;
+            const time = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+            line.innerHTML = `<span class="log-time">${time}</span>${escapeHtml(msg)}`;
+            body.appendChild(line);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function toggleConsole() {
+            const panel = document.getElementById('console-panel');
+            panel.classList.toggle('open');
+            document.getElementById('btn-console').classList.toggle('active', panel.classList.contains('open'));
+        }
+
+        window.clearConsole = function () {
+            document.getElementById('console-body').innerHTML = '';
         };
-    });
-}
 
-// ======================== APP STATE ========================
-let activeProvider = 'openai';
-let engine = null;
-let isGenerating = false;
-
-// ======================== CONSOLE ========================
-function logToConsole(msg, type = '') {
-    const body = document.getElementById('console-body');
-    const line = document.createElement('div');
-    line.className = `log-line ${type}`;
-    const time = new Date().toLocaleTimeString('zh-CN', { hour12: false });
-    line.innerHTML = `<span class="log-time">${time}</span>${escapeHtml(msg)}`;
-    body.appendChild(line);
-    body.scrollTop = body.scrollHeight;
-}
-
-function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-}
-
-function toggleConsole() {
-    const panel = document.getElementById('console-panel');
-    panel.classList.toggle('open');
-    document.getElementById('btn-console').classList.toggle('active', panel.classList.contains('open'));
-}
-
-window.clearConsole = function() {
-    document.getElementById('console-body').innerHTML = '';
-};
-
-function setConsoleLive(live) {
-    document.getElementById('console-dot').classList.toggle('live', live);
-}
-
-// ======================== INIT ========================
-function init() {
-    engine = new VoxelEngine(document.getElementById('canvas-container'));
-    window.addEventListener('resize', () => engine.handleResize());
-
-    // Load saved settings
-    loadSettings();
-    updateAllKeyStatuses();
-    updateProviderLabel();
-    updateRotateButton();
-
-    // Event listeners
-    document.getElementById('btn-settings').addEventListener('click', toggleSettings);
-    document.getElementById('btn-close-settings').addEventListener('click', () => {
-        document.getElementById('settings-panel').classList.remove('open');
-    });
-    document.getElementById('btn-console').addEventListener('click', toggleConsole);
-    document.getElementById('btn-close-console').addEventListener('click', () => {
-        document.getElementById('console-panel').classList.remove('open');
-        document.getElementById('btn-console').classList.remove('active');
-    });
-    document.getElementById('btn-rotate').addEventListener('click', toggleRotation);
-    document.getElementById('btn-export').addEventListener('click', showExportModal);
-    document.getElementById('btn-export-vox').addEventListener('click', () => downloadVox());
-    document.getElementById('btn-export-obj').addEventListener('click', () => downloadObj());
-    document.getElementById('btn-export-glb').addEventListener('click', () => downloadGlb());
-    document.getElementById('btn-import-file').addEventListener('click', () => {
-        document.getElementById('file-import-input').click();
-    });
-    document.getElementById('btn-import').addEventListener('click', () => openModal('modal-import'));
-    document.getElementById('btn-clear').addEventListener('click', clearScene);
-    document.getElementById('btn-generate').addEventListener('click', generate);
-    document.getElementById('btn-save-settings').addEventListener('click', saveSettings);
-    document.getElementById('current-provider-label').addEventListener('click', toggleSettings);
-
-    // Provider tabs
-    document.querySelectorAll('.provider-tab').forEach(tab => {
-        tab.addEventListener('click', () => switchProvider(tab.dataset.provider));
-    });
-
-    // Setup slider events
-    const sliderComplexity = document.getElementById('param-complexity');
-    const labelComplexity = document.getElementById('label-complexity');
-    sliderComplexity.addEventListener('input', (e) => {
-        labelComplexity.textContent = e.target.value;
-    });
-
-    const sliderMaxSize = document.getElementById('param-max-size');
-    const labelMaxSize = document.getElementById('label-max-size');
-    sliderMaxSize.addEventListener('input', (e) => {
-        labelMaxSize.textContent = e.target.value;
-    });
-
-    // Prompt input
-    const promptInput = document.getElementById('prompt-input');
-    promptInput.addEventListener('input', () => {
-        document.getElementById('btn-generate').disabled = !promptInput.value.trim() || isGenerating;
-        autoResizeTextarea(promptInput);
-    });
-    promptInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            if (promptInput.value.trim() && !isGenerating) generate();
-        }
-    });
-
-    // API key inputs — auto-save & update status on change
-    document.querySelectorAll('.api-key-input').forEach(input => {
-        input.addEventListener('input', () => {
-            const provider = input.id.replace('key-', '');
-            updateKeyStatus(provider);
-        });
-    });
-
-    setupDragAndDrop();
-
-    logToConsole('VoxelForge 已初始化', 'info');
-    logToConsole('请在设置面板中配置 API Key 后开始生成', 'info');
-}
-
-function autoResizeTextarea(el) {
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
-}
-
-// ======================== SETTINGS ========================
-function loadSettings() {
-    const saved = localStorage.getItem('voxelforge_settings');
-    if (!saved) return;
-    try {
-        const s = JSON.parse(saved);
-        if (s.activeProvider) {
-            activeProvider = s.activeProvider;
-            switchProvider(activeProvider, false);
-        }
-        ['openai', 'claude', 'glm', 'deepseek', 'gemini'].forEach(p => {
-            if (s[p]?.key) document.getElementById(`key-${p}`).value = s[p].key;
-            if (s[p]?.model) {
-                const sel = document.getElementById(`model-${p}`);
-                if (sel) sel.value = s[p].model;
-            }
-            if (s[p]?.baseUrl) {
-                const inp = document.getElementById(`baseurl-${p}`);
-                if (inp) inp.value = s[p].baseUrl;
-            }
-        });
-        if (s.complexity) {
-            document.getElementById('param-complexity').value = s.complexity;
-            document.getElementById('label-complexity').textContent = s.complexity;
-        }
-        if (s.maxSize) {
-            document.getElementById('param-max-size').value = s.maxSize;
-            document.getElementById('label-max-size').textContent = s.maxSize;
-        }
-    } catch (e) { /* ignore */ }
-}
-
-function saveSettings() {
-    const s = {
-        activeProvider,
-        complexity: document.getElementById('param-complexity').value,
-        maxSize: document.getElementById('param-max-size').value
-    };
-    ['openai', 'claude', 'glm', 'deepseek'].forEach(p => {
-        s[p] = {
-            key: document.getElementById(`key-${p}`).value.trim(),
-            model: document.getElementById(`model-${p}`).value,
-            baseUrl: document.getElementById(`baseurl-${p}`)?.value.trim() || ''
-        };
-    });
-    localStorage.setItem('voxelforge_settings', JSON.stringify(s));
-    updateAllKeyStatuses();
-    showToast('配置已保存', 'success');
-    logToConsole('配置已保存到 localStorage', 'success');
-}
-
-function getProviderConfig(provider) {
-    return {
-        key: document.getElementById(`key-${provider}`).value.trim(),
-        model: document.getElementById(`model-${provider}`).value,
-        baseUrl: document.getElementById(`baseurl-${provider}`)?.value.trim() || ''
-    };
-}
-
-function updateKeyStatus(provider) {
-    const key = document.getElementById(`key-${provider}`).value.trim();
-    const statusEl = document.getElementById(`status-${provider}`);
-    if (key) {
-        statusEl.innerHTML = `<span class="status-dot ok"></span>已配置 (${key.substring(0, 6)}...)`;
-    } else {
-        statusEl.innerHTML = `<span class="status-dot empty"></span>未配置`;
-    }
-}
-
-function updateAllKeyStatuses() {
-    ['openai', 'claude', 'glm', 'deepseek'].forEach(updateKeyStatus);
-}
-
-// ======================== API TEST ========================
-window.testApi = async function(provider) {
-    const config = getProviderConfig(provider);
-    const resultEl = document.getElementById(`test-result-${provider}`);
-    
-    if (!config.key) {
-        resultEl.className = 'test-result fail';
-        resultEl.textContent = '❌ 请先填写 API Key';
-        return;
-    }
-
-    resultEl.className = 'test-result';
-    resultEl.textContent = '⏳ 正在测试...';
-    logToConsole(`[测试] 测试 ${PROVIDERS[provider].name} 连通性...`, 'info');
-    logToConsole(`[测试] 端点: ${config.baseUrl || PROVIDERS[provider].defaultBaseUrl}`, 'data');
-    logToConsole(`[测试] 模型: ${config.model}`, 'data');
-
-    const startTime = Date.now();
-
-    try {
-        const prov = PROVIDERS[provider];
-        const req = prov.buildRequest(config.key, config.model, 'Say "hello" in one word.', config.baseUrl);
-        // Overwrite body to be minimal for test
-        if (provider === 'claude') {
-            req.body.messages = [
-                { role: 'user', content: 'Reply with exactly one word: hello' }
-            ];
-            req.body.max_tokens = 32;
-            delete req.body.system;
-        } else if (provider === 'gemini') {
-            req.body.contents = [{ parts: [{ text: 'Reply with exactly one word: hello' }] }];
-            delete req.body.system_instruction;
-            delete req.body.generationConfig;
-        } else {
-            req.body.messages = [
-                { role: 'user', content: 'Reply with exactly one word: hello' }
-            ];
-            delete req.body.response_format;
+        function setConsoleLive(live) {
+            document.getElementById('console-dot').classList.toggle('live', live);
         }
 
-        const resp = await fetch(req.url, {
-            method: 'POST',
-            headers: req.headers,
-            body: JSON.stringify(req.body)
-        });
+        // ======================== INIT ========================
+        function init() {
+            engine = new VoxelEngine(document.getElementById('canvas-container'));
+            window.addEventListener('resize', () => engine.handleResize());
 
-        const elapsed = Date.now() - startTime;
+            // Load saved settings
+            loadSettings();
+            updateAllKeyStatuses();
+            updateProviderLabel();
+            updateRotateButton();
 
-        if (resp.ok) {
-            const data = await resp.json();
-            let replyText = '';
-            if (provider === 'claude') {
-                replyText = data.content?.[0]?.text || '';
-            } else if (provider === 'gemini') {
-                replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-            } else {
-                replyText = data.choices?.[0]?.message?.content || '';
-            }
-            resultEl.className = 'test-result ok';
-            resultEl.textContent = `✅ 连通成功 (${elapsed}ms)`;
-            logToConsole(`[测试] ✅ ${PROVIDERS[provider].name} 连通成功，耗时 ${elapsed}ms`, 'success');
-            logToConsole(`[测试] 回复: ${replyText.substring(0, 100)}`, 'data');
-        } else {
-            const errText = await resp.text();
-            let errMsg = `HTTP ${resp.status}`;
+            // Event listeners
+            document.getElementById('btn-settings').addEventListener('click', toggleSettings);
+            document.getElementById('btn-close-settings').addEventListener('click', () => {
+                document.getElementById('settings-panel').classList.remove('open');
+            });
+            document.getElementById('btn-console').addEventListener('click', toggleConsole);
+            document.getElementById('btn-close-console').addEventListener('click', () => {
+                document.getElementById('console-panel').classList.remove('open');
+                document.getElementById('btn-console').classList.remove('active');
+            });
+            document.getElementById('btn-rotate').addEventListener('click', toggleRotation);
+            document.getElementById('btn-export').addEventListener('click', showExportModal);
+            document.getElementById('btn-export-vox').addEventListener('click', () => downloadVox());
+            document.getElementById('btn-export-obj').addEventListener('click', () => downloadObj());
+            document.getElementById('btn-export-obj-opt').addEventListener('click', () => downloadOptimizedObj());
+            document.getElementById('btn-export-glb').addEventListener('click', () => downloadGlb());
+            document.getElementById('btn-import-file').addEventListener('click', () => {
+                document.getElementById('file-import-input').click();
+            });
+            document.getElementById('btn-import').addEventListener('click', () => openModal('modal-import'));
+            document.getElementById('btn-clear').addEventListener('click', clearScene);
+            document.getElementById('btn-generate').addEventListener('click', generate);
+            document.getElementById('btn-save-settings').addEventListener('click', saveSettings);
+            document.getElementById('current-provider-label').addEventListener('click', toggleSettings);
+
+            // Provider tabs
+            document.querySelectorAll('.provider-tab').forEach(tab => {
+                tab.addEventListener('click', () => switchProvider(tab.dataset.provider));
+            });
+
+            // Setup slider events
+            const sliderComplexity = document.getElementById('param-complexity');
+            const labelComplexity = document.getElementById('label-complexity');
+            sliderComplexity.addEventListener('input', (e) => {
+                labelComplexity.textContent = e.target.value;
+            });
+
+            const sliderMaxSize = document.getElementById('param-max-size');
+            const labelMaxSize = document.getElementById('label-max-size');
+            sliderMaxSize.addEventListener('input', (e) => {
+                labelMaxSize.textContent = e.target.value;
+            });
+
+            // Prompt input
+            const promptInput = document.getElementById('prompt-input');
+            promptInput.addEventListener('input', () => {
+                document.getElementById('btn-generate').disabled = !promptInput.value.trim() || isGenerating;
+                autoResizeTextarea(promptInput);
+            });
+            promptInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (promptInput.value.trim() && !isGenerating) generate();
+                }
+            });
+
+            // API key inputs — auto-save & update status on change
+            document.querySelectorAll('.api-key-input').forEach(input => {
+                input.addEventListener('input', () => {
+                    const provider = input.id.replace('key-', '');
+                    updateKeyStatus(provider);
+                });
+            });
+
+            setupDragAndDrop();
+
+            logToConsole('VoxelForge 已初始化', 'info');
+            logToConsole('请在设置面板中配置 API Key 后开始生成', 'info');
+        }
+
+        function autoResizeTextarea(el) {
+            el.style.height = 'auto';
+            el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+        }
+
+        // ======================== SETTINGS ========================
+        function loadSettings() {
+            const saved = localStorage.getItem('voxelforge_settings');
+            if (!saved) return;
             try {
-                const errJson = JSON.parse(errText);
-                errMsg = errJson.error?.message || errJson.message || errMsg;
-            } catch {}
-            resultEl.className = 'test-result fail';
-            resultEl.textContent = `❌ 失败: ${errMsg.substring(0, 60)}`;
-            logToConsole(`[测试] ❌ ${PROVIDERS[provider].name} 连通失败: ${errMsg}`, 'error');
+                const s = JSON.parse(saved);
+                if (s.activeProvider) {
+                    activeProvider = s.activeProvider;
+                    switchProvider(activeProvider, false);
+                }
+                ['openai', 'claude', 'glm', 'deepseek', 'gemini'].forEach(p => {
+                    if (s[p]?.key) document.getElementById(`key-${p}`).value = s[p].key;
+                    if (s[p]?.model) {
+                        const sel = document.getElementById(`model-${p}`);
+                        if (sel) sel.value = s[p].model;
+                    }
+                    if (s[p]?.baseUrl) {
+                        const inp = document.getElementById(`baseurl-${p}`);
+                        if (inp) inp.value = s[p].baseUrl;
+                    }
+                });
+                if (s.complexity) {
+                    document.getElementById('param-complexity').value = s.complexity;
+                    document.getElementById('label-complexity').textContent = s.complexity;
+                }
+                if (s.maxSize) {
+                    document.getElementById('param-max-size').value = s.maxSize;
+                    document.getElementById('label-max-size').textContent = s.maxSize;
+                }
+            } catch (e) { /* ignore */ }
         }
-    } catch (err) {
-        const elapsed = Date.now() - startTime;
-        resultEl.className = 'test-result fail';
-        resultEl.textContent = `❌ 网络错误: ${err.message.substring(0, 50)}`;
-        logToConsole(`[测试] ❌ ${PROVIDERS[provider].name} 网络错误 (${elapsed}ms): ${err.message}`, 'error');
-    }
-};
 
-// ======================== PROVIDER SWITCHING ========================
-function switchProvider(provider, save = true) {
-    activeProvider = provider;
-    // tabs
-    document.querySelectorAll('.provider-tab').forEach(t => {
-        t.classList.toggle('active', t.dataset.provider === provider);
-    });
-    // config panels
-    document.querySelectorAll('.provider-config').forEach(p => {
-        p.style.display = p.id === `config-${provider}` ? 'flex' : 'none';
-        if (p.style.display === 'flex') {
-            p.style.flexDirection = 'column';
-            p.style.gap = '16px';
+        function saveSettings() {
+            const s = {
+                activeProvider,
+                complexity: document.getElementById('param-complexity').value,
+                maxSize: document.getElementById('param-max-size').value
+            };
+            ['openai', 'claude', 'glm', 'deepseek'].forEach(p => {
+                s[p] = {
+                    key: document.getElementById(`key-${p}`).value.trim(),
+                    model: document.getElementById(`model-${p}`).value,
+                    baseUrl: document.getElementById(`baseurl-${p}`)?.value.trim() || ''
+                };
+            });
+            localStorage.setItem('voxelforge_settings', JSON.stringify(s));
+            updateAllKeyStatuses();
+            showToast('配置已保存', 'success');
+            logToConsole('配置已保存到 localStorage', 'success');
         }
-    });
-    updateProviderLabel();
-    if (save) {
-        const s = JSON.parse(localStorage.getItem('voxelforge_settings') || '{}');
-        s.activeProvider = provider;
-        localStorage.setItem('voxelforge_settings', JSON.stringify(s));
-    }
-}
 
-function updateProviderLabel() {
-    const names = { openai: 'OpenAI', claude: 'Claude', glm: 'GLM', deepseek: 'DeepSeek', gemini: 'Gemini' };
-    document.getElementById('provider-name-text').textContent = names[activeProvider] || activeProvider;
-}
+        function getProviderConfig(provider) {
+            return {
+                key: document.getElementById(`key-${provider}`).value.trim(),
+                model: document.getElementById(`model-${provider}`).value,
+                baseUrl: document.getElementById(`baseurl-${provider}`)?.value.trim() || ''
+            };
+        }
 
-// ======================== UI INTERACTIONS ========================
-function toggleSettings() {
-    document.getElementById('settings-panel').classList.toggle('open');
-}
+        function updateKeyStatus(provider) {
+            const key = document.getElementById(`key-${provider}`).value.trim();
+            const statusEl = document.getElementById(`status-${provider}`);
+            if (key) {
+                statusEl.innerHTML = `<span class="status-dot ok"></span>已配置 (${key.substring(0, 6)}...)`;
+            } else {
+                statusEl.innerHTML = `<span class="status-dot empty"></span>未配置`;
+            }
+        }
 
-function toggleRotation() {
-    const cur = engine.getAutoRotate();
-    engine.setAutoRotate(!cur);
-    updateRotateButton();
-}
+        function updateAllKeyStatuses() {
+            ['openai', 'claude', 'glm', 'deepseek'].forEach(updateKeyStatus);
+        }
 
-function updateRotateButton() {
-    const btn = document.getElementById('btn-rotate');
-    btn.classList.toggle('active', engine.getAutoRotate());
-}
+        // ======================== API TEST ========================
+        window.testApi = async function (provider) {
+            const config = getProviderConfig(provider);
+            const resultEl = document.getElementById(`test-result-${provider}`);
 
-window.toggleKeyVisibility = function(inputId) {
-    const inp = document.getElementById(inputId);
-    inp.type = inp.type === 'password' ? 'text' : 'password';
-};
+            if (!config.key) {
+                resultEl.className = 'test-result fail';
+                resultEl.textContent = '❌ 请先填写 API Key';
+                return;
+            }
 
-function clearScene() {
-    engine.clear();
-    document.getElementById('voxel-count').textContent = '0';
-    showToast('场景已清空', 'success');
-    logToConsole('场景已清空', 'info');
-}
+            resultEl.className = 'test-result';
+            resultEl.textContent = '⏳ 正在测试...';
+            logToConsole(`[测试] 测试 ${PROVIDERS[provider].name} 连通性...`, 'info');
+            logToConsole(`[测试] 端点: ${config.baseUrl || PROVIDERS[provider].defaultBaseUrl}`, 'data');
+            logToConsole(`[测试] 模型: ${config.model}`, 'data');
 
-function showExportModal() {
-    const data = engine.getJsonData();
-    if (data.length === 0) {
-        showToast('场景为空，无法导出', 'error');
-        return;
-    }
-    document.getElementById('export-json-text').value = JSON.stringify(data, null, 2);
-    openModal('modal-export');
-}
+            const startTime = Date.now();
 
-window.copyExportJson = function() {
-    const text = document.getElementById('export-json-text').value;
-    navigator.clipboard.writeText(text).then(() => showToast('已复制到剪贴板', 'success'));
-};
+            try {
+                const prov = PROVIDERS[provider];
+                const req = prov.buildRequest(config.key, config.model, 'Say "hello" in one word.', config.baseUrl);
+                // Overwrite body to be minimal for test
+                if (provider === 'claude') {
+                    req.body.messages = [
+                        { role: 'user', content: 'Reply with exactly one word: hello' }
+                    ];
+                    req.body.max_tokens = 32;
+                    delete req.body.system;
+                } else if (provider === 'gemini') {
+                    req.body.contents = [{ parts: [{ text: 'Reply with exactly one word: hello' }] }];
+                    delete req.body.system_instruction;
+                    delete req.body.generationConfig;
+                } else {
+                    req.body.messages = [
+                        { role: 'user', content: 'Reply with exactly one word: hello' }
+                    ];
+                    delete req.body.response_format;
+                }
 
-window.downloadVox = function() {
-    const data = engine.getJsonData();
-    if (data.length === 0) {
-        showToast('场景为空，无法导出', 'error');
-        return;
-    }
-    try {
-        // Convert hex strings to integers for buildVoxFile
-        const voxelData = data.map(v => ({
-            x: v.x, y: v.y, z: v.z,
-            color: parseInt(v.color.replace('#', ''), 16)
-        }));
-        const buffer = buildVoxFile(voxelData);
-        const blob = new Blob([buffer], { type: 'application/octet-stream' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'voxel_model.vox';
-        a.click();
-        URL.revokeObjectURL(url);
-        showToast('已下载 voxel_model.vox', 'success');
-        logToConsole(`导出 .vox 文件: ${voxelData.length} 个体素`, 'success');
-    } catch (e) {
-        showToast('导出失败: ' + e.message, 'error');
-        logToConsole(`VOX 导出失败: ${e.message}`, 'error');
-    }
-};
+                const resp = await fetch(req.url, {
+                    method: 'POST',
+                    headers: req.headers,
+                    body: JSON.stringify(req.body)
+                });
 
-window.downloadObj = function() {
-    const data = engine.getJsonData();
-    if (data.length === 0) {
-        showToast('场景为空，无法导出', 'error');
-        return;
-    }
-    
-    let objText = "# VoxelForge OBJ Export\n";
-    let vOffset = 0;
+                const elapsed = Date.now() - startTime;
 
-    data.forEach(v => {
-        const c = new THREE.Color(v.color);
-        const r = c.r.toFixed(3), g = c.g.toFixed(3), b = c.b.toFixed(3);
-        const x = v.x, y = v.y, z = v.z;
-        const h = 0.5;
+                if (resp.ok) {
+                    const data = await resp.json();
+                    let replyText = '';
+                    if (provider === 'claude') {
+                        replyText = data.content?.[0]?.text || '';
+                    } else if (provider === 'gemini') {
+                        replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                    } else {
+                        replyText = data.choices?.[0]?.message?.content || '';
+                    }
+                    resultEl.className = 'test-result ok';
+                    resultEl.textContent = `✅ 连通成功 (${elapsed}ms)`;
+                    logToConsole(`[测试] ✅ ${PROVIDERS[provider].name} 连通成功，耗时 ${elapsed}ms`, 'success');
+                    logToConsole(`[测试] 回复: ${replyText.substring(0, 100)}`, 'data');
+                } else {
+                    const errText = await resp.text();
+                    let errMsg = `HTTP ${resp.status}`;
+                    try {
+                        const errJson = JSON.parse(errText);
+                        errMsg = errJson.error?.message || errJson.message || errMsg;
+                    } catch { }
+                    resultEl.className = 'test-result fail';
+                    resultEl.textContent = `❌ 失败: ${errMsg.substring(0, 60)}`;
+                    logToConsole(`[测试] ❌ ${PROVIDERS[provider].name} 连通失败: ${errMsg}`, 'error');
+                }
+            } catch (err) {
+                const elapsed = Date.now() - startTime;
+                resultEl.className = 'test-result fail';
+                resultEl.textContent = `❌ 网络错误: ${err.message.substring(0, 50)}`;
+                logToConsole(`[测试] ❌ ${PROVIDERS[provider].name} 网络错误 (${elapsed}ms): ${err.message}`, 'error');
+            }
+        };
 
-        // 8 vertices (with colors)
-        objText += `v ${x-h} ${y-h} ${z+h} ${r} ${g} ${b}\n`;
-        objText += `v ${x+h} ${y-h} ${z+h} ${r} ${g} ${b}\n`;
-        objText += `v ${x-h} ${y+h} ${z+h} ${r} ${g} ${b}\n`;
-        objText += `v ${x+h} ${y+h} ${z+h} ${r} ${g} ${b}\n`;
-        objText += `v ${x-h} ${y-h} ${z-h} ${r} ${g} ${b}\n`;
-        objText += `v ${x+h} ${y-h} ${z-h} ${r} ${g} ${b}\n`;
-        objText += `v ${x-h} ${y+h} ${z-h} ${r} ${g} ${b}\n`;
-        objText += `v ${x+h} ${y+h} ${z-h} ${r} ${g} ${b}\n`;
+        // ======================== PROVIDER SWITCHING ========================
+        function switchProvider(provider, save = true) {
+            activeProvider = provider;
+            // tabs
+            document.querySelectorAll('.provider-tab').forEach(t => {
+                t.classList.toggle('active', t.dataset.provider === provider);
+            });
+            // config panels
+            document.querySelectorAll('.provider-config').forEach(p => {
+                p.style.display = p.id === `config-${provider}` ? 'flex' : 'none';
+                if (p.style.display === 'flex') {
+                    p.style.flexDirection = 'column';
+                    p.style.gap = '16px';
+                }
+            });
+            updateProviderLabel();
+            if (save) {
+                const s = JSON.parse(localStorage.getItem('voxelforge_settings') || '{}');
+                s.activeProvider = provider;
+                localStorage.setItem('voxelforge_settings', JSON.stringify(s));
+            }
+        }
 
-        // 6 faces
-        const o = vOffset;
-        objText += `f ${o+1} ${o+2} ${o+4} ${o+3}\n`; // Front
-        objText += `f ${o+3} ${o+4} ${o+8} ${o+7}\n`; // Top
-        objText += `f ${o+7} ${o+8} ${o+6} ${o+5}\n`; // Back
-        objText += `f ${o+5} ${o+6} ${o+2} ${o+1}\n`; // Bottom
-        objText += `f ${o+1} ${o+3} ${o+7} ${o+5}\n`; // Left
-        objText += `f ${o+6} ${o+8} ${o+4} ${o+2}\n`; // Right
+        function updateProviderLabel() {
+            const names = { openai: 'OpenAI', claude: 'Claude', glm: 'GLM', deepseek: 'DeepSeek', gemini: 'Gemini' };
+            document.getElementById('provider-name-text').textContent = names[activeProvider] || activeProvider;
+        }
 
-        vOffset += 8;
-    });
+        // ======================== UI INTERACTIONS ========================
+        function toggleSettings() {
+            document.getElementById('settings-panel').classList.toggle('open');
+        }
 
-    const blob = new Blob([objText], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'voxel_model.obj';
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('已下载 voxel_model.obj', 'success');
-    logToConsole(`导出 .obj 文件: ${data.length} 个体素`, 'success');
-};
+        function toggleRotation() {
+            const cur = engine.getAutoRotate();
+            engine.setAutoRotate(!cur);
+            updateRotateButton();
+        }
 
-window.downloadGlb = function() {
-    if (!engine || !engine.instanceMesh || engine.getJsonData().length === 0) {
-        showToast('场景为空，无法导出', 'error');
-        return;
-    }
+        function updateRotateButton() {
+            const btn = document.getElementById('btn-rotate');
+            btn.classList.toggle('active', engine.getAutoRotate());
+        }
 
-    try {
-        const exporter = new GLTFExporter();
-        // Create a temporary scene with just the mesh
-        const exportScene = new THREE.Scene();
-        exportScene.add(engine.instanceMesh.clone());
+        window.toggleKeyVisibility = function (inputId) {
+            const inp = document.getElementById(inputId);
+            inp.type = inp.type === 'password' ? 'text' : 'password';
+        };
 
-        exporter.parse(
-            exportScene,
-            function (gltf) {
-                const blob = new Blob([gltf], { type: 'application/octet-stream' });
+        function clearScene() {
+            engine.clear();
+            document.getElementById('voxel-count').textContent = '0';
+            showToast('场景已清空', 'success');
+            logToConsole('场景已清空', 'info');
+        }
+
+        function showExportModal() {
+            const data = engine.getJsonData();
+            if (data.length === 0) {
+                showToast('场景为空，无法导出', 'error');
+                return;
+            }
+            document.getElementById('export-json-text').value = JSON.stringify(data, null, 2);
+            openModal('modal-export');
+        }
+
+        window.copyExportJson = function () {
+            const text = document.getElementById('export-json-text').value;
+            navigator.clipboard.writeText(text).then(() => showToast('已复制到剪贴板', 'success'));
+        };
+
+        window.downloadVox = function () {
+            const data = engine.getJsonData();
+            if (data.length === 0) {
+                showToast('场景为空，无法导出', 'error');
+                return;
+            }
+            try {
+                // Convert hex strings to integers for buildVoxFile
+                const voxelData = data.map(v => ({
+                    x: v.x, y: v.y, z: v.z,
+                    color: parseInt(v.color.replace('#', ''), 16)
+                }));
+                const buffer = buildVoxFile(voxelData);
+                const blob = new Blob([buffer], { type: 'application/octet-stream' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'voxel_model.glb';
+                a.download = 'voxel_model.vox';
                 a.click();
                 URL.revokeObjectURL(url);
-                showToast('已下载 voxel_model.glb', 'success');
-                logToConsole('导出 .glb 文件成功', 'success');
-            },
-            function (error) {
-                showToast('GLB导出错误: ' + error.message, 'error');
-                logToConsole('GLB导出错误: ' + error.message, 'error');
-            },
-            { binary: true }
-        );
-    } catch (e) {
-        showToast('GLB导出失败: ' + e.message, 'error');
-        logToConsole('GLB导出错误: ' + e.message, 'error');
-    }
-};
+                showToast('已下载 voxel_model.vox', 'success');
+                logToConsole(`导出 .vox 文件: ${voxelData.length} 个体素`, 'success');
+            } catch (e) {
+                showToast('导出失败: ' + e.message, 'error');
+                logToConsole(`VOX 导出失败: ${e.message}`, 'error');
+            }
+        };
 
-window.downloadJson = function() {
-    const text = document.getElementById('export-json-text').value;
-    const blob = new Blob([text], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'voxel_model.json';
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('已下载 voxel_model.json', 'success');
-};
+        window.downloadObj = async function () {
+            const data = engine.getJsonData();
+            if (data.length === 0) {
+                showToast('场景为空，无法导出', 'error');
+                return;
+            }
 
-window.doImportJson = function() {
-    const text = document.getElementById('import-json-text').value.trim();
-    if (!text) { showToast('请粘贴 JSON 数据', 'error'); return; }
-    try {
-        const rawArray = extractJsonArray(text);
-        const voxelData = parseVoxelData(rawArray);
-        engine.loadModel(voxelData);
-        document.getElementById('voxel-count').textContent = voxelData.length;
-        closeModal('modal-import');
-        document.getElementById('import-json-text').value = '';
-        showToast(`已导入 ${voxelData.length} 个体素`, 'success');
-        logToConsole(`导入了 ${voxelData.length} 个体素`, 'success');
-    } catch (e) {
-        showToast('JSON 格式错误: ' + e.message, 'error');
-        logToConsole(`导入失败: ${e.message}`, 'error');
-    }
-};
-
-window.handleFileImport = function(file) {
-    if (!file.name.toLowerCase().endsWith('.json')) {
-        showToast('请选择 JSON 文件', 'error');
-        return;
-    }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const text = e.target.result;
-        try {
-            const rawArray = extractJsonArray(text);
-            const voxelData = parseVoxelData(rawArray);
-            engine.loadModel(voxelData);
-            document.getElementById('voxel-count').textContent = voxelData.length;
-            showToast(`成功读取文件并导入 ${voxelData.length} 个体素`, 'success');
-            logToConsole(`从文件 ${file.name} 导入了 ${voxelData.length} 个体素`, 'success');
-        } catch (err) {
-            showToast('文件内容格式错误: ' + err.message, 'error');
-            logToConsole(`读取文件失败: ${err.message}`, 'error');
-        }
-    };
-    reader.onerror = () => {
-        showToast('读取文件发生错误', 'error');
-        logToConsole('FileReader 读取错误', 'error');
-    };
-    reader.readAsText(file);
-};
-
-function setupDragAndDrop() {
-    const dropOverlay = document.getElementById('drop-overlay');
-    const fileImportInput = document.getElementById('file-import-input');
-    let dragCounter = 0;
-
-    fileImportInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) handleFileImport(file);
-        e.target.value = ''; // Reset
-    });
-
-    document.body.addEventListener('dragenter', (e) => {
-        e.preventDefault();
-        dragCounter++;
-        dropOverlay.classList.add('active');
-    });
-
-    document.body.addEventListener('dragleave', (e) => {
-        e.preventDefault();
-        dragCounter--;
-        if (dragCounter === 0) {
-            dropOverlay.classList.remove('active');
-        }
-    });
-
-    document.body.addEventListener('dragover', (e) => {
-        e.preventDefault(); // Necessary to allow drop
-    });
-
-    document.body.addEventListener('drop', (e) => {
-        e.preventDefault(); // Prevent default browser behavior (open file map)
-        dragCounter = 0;
-        dropOverlay.classList.remove('active');
-        
-        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            const file = e.dataTransfer.files[0];
-            handleFileImport(file);
-        }
-    });
-
-    // Also close drop overlay if drop happens on it
-    dropOverlay.addEventListener('drop', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dragCounter = 0;
-        dropOverlay.classList.remove('active');
-        
-        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            const file = e.dataTransfer.files[0];
-            handleFileImport(file);
-        }
-    });
-}
-
-function openModal(id) { document.getElementById(id).classList.add('active'); }
-window.closeModal = function(id) { document.getElementById(id).classList.remove('active'); };
-
-function showToast(msg, type = '') {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.textContent = msg;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-}
-
-// ======================== GENERATION ========================
-function setGeneratingUI(active, statusText) {
-    const indicator = document.getElementById('generating-indicator');
-    const promptContainer = document.getElementById('prompt-container');
-    const genText = document.getElementById('gen-text');
-
-    if (active) {
-        indicator.classList.add('active');
-        promptContainer.classList.add('disabled');
-        genText.textContent = statusText || 'AI 正在生成...';
-    } else {
-        indicator.classList.remove('active');
-        promptContainer.classList.remove('disabled');
-    }
-}
-
-function updateGenStatus(text) {
-    document.getElementById('gen-text').textContent = text;
-}
-
-async function generate() {
-    const prompt = document.getElementById('prompt-input').value.trim();
-    if (!prompt || isGenerating) return;
-
-    const config = getProviderConfig(activeProvider);
-    if (!config.key) {
-        showToast('请先配置 API Key（点击左上角 ⚙️）', 'error');
-        toggleSettings();
-        return;
-    }
-
-    isGenerating = true;
-    document.getElementById('btn-generate').disabled = true;
-    setGeneratingUI(true, `${PROVIDERS[activeProvider].name} 正在生成...`);
-    setConsoleLive(true);
-
-    // Auto-open console to show progress
-    if (!document.getElementById('console-panel').classList.contains('open')) {
-        toggleConsole();
-    }
-
-    logToConsole(`━━━ 新生成任务 ━━━`, 'info');
-    logToConsole(`提供商: ${PROVIDERS[activeProvider].name}`, 'info');
-    logToConsole(`模型: ${config.model}`, 'info');
-    logToConsole(`提示词: "${prompt}"`, 'info');
-
-    const startTime = Date.now();
-    const complexity = parseInt(document.getElementById('param-complexity').value) || 300;
-    const maxSize = parseInt(document.getElementById('param-max-size').value) || 32;
-
-    try {
-        const provider = PROVIDERS[activeProvider];
-        const req = provider.buildRequest(config.key, config.model, prompt, config.baseUrl, complexity, maxSize);
-
-        logToConsole(`发送请求到 ${req.url}`, 'data');
-        updateGenStatus('正在发送请求...');
-
-        const resp = await fetch(req.url, {
-            method: 'POST',
-            headers: req.headers,
-            body: JSON.stringify(req.body)
-        });
-
-        const elapsed1 = Date.now() - startTime;
-        logToConsole(`收到响应 HTTP ${resp.status} (${elapsed1}ms)`, resp.ok ? 'success' : 'error');
-
-        if (!resp.ok) {
-            const errText = await resp.text();
-            let errMsg = `API 请求失败 (${resp.status})`;
             try {
-                const errJson = JSON.parse(errText);
-                errMsg = errJson.error?.message || errJson.message || errMsg;
-            } catch {}
-            logToConsole(`错误详情: ${errMsg}`, 'error');
-            throw new Error(errMsg);
+                showToast('正在生成 OBJ 和贴图文件...', 'info');
+
+                // 1. Extract unique colors to build a palette
+                const uniqueColors = [];
+                const colorMap = new Map(); // hex -> palette index (0-based)
+
+                data.forEach(v => {
+                    let hex = v.color.replace('#', '').toLowerCase();
+                    if (!colorMap.has(hex)) {
+                        colorMap.set(hex, uniqueColors.length);
+                        uniqueColors.push(hex);
+                    }
+                });
+
+                const paletteWidth = Math.max(1, uniqueColors.length);
+                const paletteHeight = 1;
+
+                // 2. Build texture PNG via canvas
+                const canvas = document.createElement('canvas');
+                canvas.width = paletteWidth;
+                canvas.height = paletteHeight;
+                const ctx = canvas.getContext('2d');
+                
+                for (let i = 0; i < uniqueColors.length; i++) {
+                    ctx.fillStyle = '#' + uniqueColors[i];
+                    ctx.fillRect(i, 0, 1, 1);
+                }
+
+                const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+
+                // 3. Build .mtl content
+                let mtlText = "# VoxelForge MTL\n";
+                mtlText += "newmtl palette\n";
+                mtlText += "Ka 1.000000 1.000000 1.000000\n";
+                mtlText += "Kd 1.000000 1.000000 1.000000\n";
+                mtlText += "Ks 0.000000 0.000000 0.000000\n";
+                mtlText += "map_Kd voxel_model.png\n";
+
+                // 4. Build .obj content
+                let objText = "# VoxelForge OBJ Export\n";
+                objText += "mtllib voxel_model.mtl\n";
+                objText += "usemtl palette\n";
+
+                // Write Texture Coordinates (vt)
+                // We map each voxel's color index to the center of its pixel in the palette texture
+                for (let i = 0; i < uniqueColors.length; i++) {
+                    const u = (i + 0.5) / paletteWidth;
+                    objText += `vt ${u.toFixed(6)} 0.5\n`;
+                }
+
+                let vOffset = 0;
+
+                data.forEach(v => {
+                    // Try mapping colors
+                    let hex = v.color.replace('#', '').toLowerCase();
+                    const cIdx = (colorMap.get(hex) || 0) + 1; // 1-based index for OBJ
+
+                    const x = v.x, y = v.y, z = v.z;
+                    const h = 0.5;
+
+                    // 8 vertices (without vertex colors, since standard OBJ parsers might fail with them)
+                    objText += `v ${x - h} ${y - h} ${z + h}\n`;
+                    objText += `v ${x + h} ${y - h} ${z + h}\n`;
+                    objText += `v ${x - h} ${y + h} ${z + h}\n`;
+                    objText += `v ${x + h} ${y + h} ${z + h}\n`;
+                    objText += `v ${x - h} ${y - h} ${z - h}\n`;
+                    objText += `v ${x + h} ${y - h} ${z - h}\n`;
+                    objText += `v ${x - h} ${y + h} ${z - h}\n`;
+                    objText += `v ${x + h} ${y + h} ${z - h}\n`;
+
+                    // 6 faces (f v/vt)
+                    const o = vOffset;
+                    objText += `f ${o + 1}/${cIdx} ${o + 2}/${cIdx} ${o + 4}/${cIdx} ${o + 3}/${cIdx}\n`; // Front
+                    objText += `f ${o + 3}/${cIdx} ${o + 4}/${cIdx} ${o + 8}/${cIdx} ${o + 7}/${cIdx}\n`; // Top
+                    objText += `f ${o + 7}/${cIdx} ${o + 8}/${cIdx} ${o + 6}/${cIdx} ${o + 5}/${cIdx}\n`; // Back
+                    objText += `f ${o + 5}/${cIdx} ${o + 6}/${cIdx} ${o + 2}/${cIdx} ${o + 1}/${cIdx}\n`; // Bottom
+                    objText += `f ${o + 1}/${cIdx} ${o + 3}/${cIdx} ${o + 7}/${cIdx} ${o + 5}/${cIdx}\n`; // Left
+                    objText += `f ${o + 6}/${cIdx} ${o + 8}/${cIdx} ${o + 4}/${cIdx} ${o + 2}/${cIdx}\n`; // Right
+
+                    vOffset += 8;
+                });
+
+                // 5. Package as ZIP using JSZip
+                if (typeof JSZip === 'undefined') {
+                    throw new Error("JSZip library not loaded");
+                }
+                const zip = new JSZip();
+                zip.file("voxel_model.obj", objText);
+                zip.file("voxel_model.mtl", mtlText);
+                zip.file("voxel_model.png", pngBlob);
+
+                const zipBlob = await zip.generateAsync({ type: "blob" });
+                
+                const url = URL.createObjectURL(zipBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'voxel_model.zip';
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                showToast('已下载 voxel_model.zip', 'success');
+                logToConsole(`导出 OBJ ZIP: 包含 ${data.length} 个体素`, 'success');
+
+            } catch (err) {
+                showToast('OBJ导出失败: ' + err.message, 'error');
+                logToConsole('OBJ导出出错: ' + err.message, 'error');
+            }
+        };
+
+        window.downloadOptimizedObj = async function () {
+            const data = engine.getJsonData();
+            if (data.length === 0) {
+                showToast('场景为空，无法导出', 'error');
+                return;
+            }
+
+            try {
+                showToast('正在精简生成 OBJ (表面剔除)...', 'info');
+
+                // 1. Build spatial map of voxels for neighbor checking
+                const voxelMap = new Map();
+                data.forEach(v => {
+                    const key = `${v.x},${v.y},${v.z}`;
+                    voxelMap.set(key, v);
+                });
+
+                // Helper to check if a neighbor exists
+                const hasNeighbor = (x, y, z) => voxelMap.has(`${x},${y},${z}`);
+
+                // 2. Extract unique colors to build a palette
+                const uniqueColors = [];
+                const colorMap = new Map(); // hex -> palette index (0-based)
+
+                data.forEach(v => {
+                    let hex = v.color.replace('#', '').toLowerCase();
+                    if (!colorMap.has(hex)) {
+                        colorMap.set(hex, uniqueColors.length);
+                        uniqueColors.push(hex);
+                    }
+                });
+
+                const paletteWidth = Math.max(1, uniqueColors.length);
+                const paletteHeight = 1;
+
+                // 3. Build texture PNG via canvas
+                const canvas = document.createElement('canvas');
+                canvas.width = paletteWidth;
+                canvas.height = paletteHeight;
+                const ctx = canvas.getContext('2d');
+                
+                for (let i = 0; i < uniqueColors.length; i++) {
+                    ctx.fillStyle = '#' + uniqueColors[i];
+                    ctx.fillRect(i, 0, 1, 1);
+                }
+
+                const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+
+                // 4. Build .mtl content
+                let mtlText = "# VoxelForge MTL (Optimized)\n";
+                mtlText += "newmtl palette\n";
+                mtlText += "Ka 1.000000 1.000000 1.000000\n";
+                mtlText += "Kd 1.000000 1.000000 1.000000\n";
+                mtlText += "Ks 0.000000 0.000000 0.000000\n";
+                mtlText += "map_Kd voxel_model_opt.png\n";
+
+                // 5. Build .obj content
+                let objText = "# VoxelForge OBJ Export (Optimized Surface)\n";
+                objText += "mtllib voxel_model_opt.mtl\n";
+                objText += "usemtl palette\n";
+
+                // Write Texture Coordinates (vt)
+                for (let i = 0; i < uniqueColors.length; i++) {
+                    const u = (i + 0.5) / paletteWidth;
+                    objText += `vt ${u.toFixed(6)} 0.5\n`;
+                }
+
+                let vOffset = 0;
+                let culledFaces = 0;
+                let totalExpectedFaces = data.length * 6;
+
+                data.forEach(v => {
+                    const x = v.x, y = v.y, z = v.z;
+                    
+                    // Check neighbors (Right, Left, Top, Bottom, Front, Back)
+                    // Note coordinates check in VoxelForge layout
+                    const right  = hasNeighbor(x + 1, y, z);
+                    const left   = hasNeighbor(x - 1, y, z);
+                    const top    = hasNeighbor(x, y + 1, z);
+                    const bottom = hasNeighbor(x, y - 1, z);
+                    const front  = hasNeighbor(x, y, z + 1);
+                    const back   = hasNeighbor(x, y, z - 1);
+
+                    // If completely surrounded, cull all faces for this voxel, don't even emit vertices
+                    if (right && left && top && bottom && front && back) {
+                        culledFaces += 6;
+                        return;
+                    }
+
+                    // Otherwise emit vertices and only exposed faces
+                    let hex = v.color.replace('#', '').toLowerCase();
+                    const cIdx = (colorMap.get(hex) || 0) + 1;
+
+                    const h = 0.5;
+
+                    // 8 vertices 
+                    objText += `v ${x - h} ${y - h} ${z + h}\n`;
+                    objText += `v ${x + h} ${y - h} ${z + h}\n`;
+                    objText += `v ${x - h} ${y + h} ${z + h}\n`;
+                    objText += `v ${x + h} ${y + h} ${z + h}\n`;
+                    objText += `v ${x - h} ${y - h} ${z - h}\n`;
+                    objText += `v ${x + h} ${y - h} ${z - h}\n`;
+                    objText += `v ${x - h} ${y + h} ${z - h}\n`;
+                    objText += `v ${x + h} ${y + h} ${z - h}\n`;
+
+                    const o = vOffset;
+                    
+                    // Front (z + 1)
+                    if (!front) objText += `f ${o + 1}/${cIdx} ${o + 2}/${cIdx} ${o + 4}/${cIdx} ${o + 3}/${cIdx}\n`; else culledFaces++;
+                    // Top (y + 1)
+                    if (!top) objText += `f ${o + 3}/${cIdx} ${o + 4}/${cIdx} ${o + 8}/${cIdx} ${o + 7}/${cIdx}\n`; else culledFaces++;
+                    // Back (z - 1)
+                    if (!back) objText += `f ${o + 7}/${cIdx} ${o + 8}/${cIdx} ${o + 6}/${cIdx} ${o + 5}/${cIdx}\n`; else culledFaces++;
+                    // Bottom (y - 1)
+                    if (!bottom) objText += `f ${o + 5}/${cIdx} ${o + 6}/${cIdx} ${o + 2}/${cIdx} ${o + 1}/${cIdx}\n`; else culledFaces++;
+                    // Left (x - 1)
+                    if (!left) objText += `f ${o + 1}/${cIdx} ${o + 3}/${cIdx} ${o + 7}/${cIdx} ${o + 5}/${cIdx}\n`; else culledFaces++;
+                    // Right (x + 1)
+                    if (!right) objText += `f ${o + 6}/${cIdx} ${o + 8}/${cIdx} ${o + 4}/${cIdx} ${o + 2}/${cIdx}\n`; else culledFaces++;
+
+                    vOffset += 8;
+                });
+
+                // 6. Package as ZIP using JSZip
+                if (typeof JSZip === 'undefined') {
+                    throw new Error("JSZip library not loaded");
+                }
+                const zip = new JSZip();
+                zip.file("voxel_model_opt.obj", objText);
+                zip.file("voxel_model_opt.mtl", mtlText);
+                zip.file("voxel_model_opt.png", pngBlob);
+
+                const zipBlob = await zip.generateAsync({ type: "blob" });
+                
+                const url = URL.createObjectURL(zipBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'voxel_model_opt.zip';
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                const cullingPercent = ((culledFaces / totalExpectedFaces) * 100).toFixed(1);
+                showToast(`已下载精简 obj, 剔除不可见内部面 ${culledFaces} 个 (${cullingPercent}%)`, 'success');
+                logToConsole(`导出精简 OBJ ZIP: 剔除 ${culledFaces}/${totalExpectedFaces} 面 (${cullingPercent}%)`, 'success');
+
+            } catch (err) {
+                showToast('精简 OBJ 导出失败: ' + err.message, 'error');
+                logToConsole('精简 OBJ 导出出错: ' + err.message, 'error');
+            }
+        };
+
+        window.downloadGlb = function () {
+            if (!engine || !engine.instanceMesh || engine.getJsonData().length === 0) {
+                showToast('场景为空，无法导出', 'error');
+                return;
+            }
+
+            try {
+                const exporter = new GLTFExporter();
+                // Create a temporary scene with just the mesh
+                const exportScene = new THREE.Scene();
+                exportScene.add(engine.instanceMesh.clone());
+
+                exporter.parse(
+                    exportScene,
+                    function (gltf) {
+                        const blob = new Blob([gltf], { type: 'application/octet-stream' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'voxel_model.glb';
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        showToast('已下载 voxel_model.glb', 'success');
+                        logToConsole('导出 .glb 文件成功', 'success');
+                    },
+                    function (error) {
+                        showToast('GLB导出错误: ' + error.message, 'error');
+                        logToConsole('GLB导出错误: ' + error.message, 'error');
+                    },
+                    { binary: true }
+                );
+            } catch (e) {
+                showToast('GLB导出失败: ' + e.message, 'error');
+                logToConsole('GLB导出错误: ' + e.message, 'error');
+            }
+        };
+
+        window.downloadJson = function () {
+            const text = document.getElementById('export-json-text').value;
+            const blob = new Blob([text], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'voxel_model.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('已下载 voxel_model.json', 'success');
+        };
+
+        window.doImportJson = function () {
+            const text = document.getElementById('import-json-text').value.trim();
+            if (!text) { showToast('请粘贴 JSON 数据', 'error'); return; }
+            try {
+                const rawArray = extractJsonArray(text);
+                const voxelData = parseVoxelData(rawArray);
+                engine.loadModel(voxelData);
+                document.getElementById('voxel-count').textContent = voxelData.length;
+                closeModal('modal-import');
+                document.getElementById('import-json-text').value = '';
+                showToast(`已导入 ${voxelData.length} 个体素`, 'success');
+                logToConsole(`导入了 ${voxelData.length} 个体素`, 'success');
+            } catch (e) {
+                showToast('JSON 格式错误: ' + e.message, 'error');
+                logToConsole(`导入失败: ${e.message}`, 'error');
+            }
+        };
+
+        window.handleFileImport = function (file) {
+            if (!file.name.toLowerCase().endsWith('.json')) {
+                showToast('请选择 JSON 文件', 'error');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const text = e.target.result;
+                try {
+                    const rawArray = extractJsonArray(text);
+                    const voxelData = parseVoxelData(rawArray);
+                    engine.loadModel(voxelData);
+                    document.getElementById('voxel-count').textContent = voxelData.length;
+                    showToast(`成功读取文件并导入 ${voxelData.length} 个体素`, 'success');
+                    logToConsole(`从文件 ${file.name} 导入了 ${voxelData.length} 个体素`, 'success');
+                } catch (err) {
+                    showToast('文件内容格式错误: ' + err.message, 'error');
+                    logToConsole(`读取文件失败: ${err.message}`, 'error');
+                }
+            };
+            reader.onerror = () => {
+                showToast('读取文件发生错误', 'error');
+                logToConsole('FileReader 读取错误', 'error');
+            };
+            reader.readAsText(file);
+        };
+
+        function setupDragAndDrop() {
+            const dropOverlay = document.getElementById('drop-overlay');
+            const fileImportInput = document.getElementById('file-import-input');
+            let dragCounter = 0;
+
+            fileImportInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) handleFileImport(file);
+                e.target.value = ''; // Reset
+            });
+
+            document.body.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                dragCounter++;
+                dropOverlay.classList.add('active');
+            });
+
+            document.body.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dragCounter--;
+                if (dragCounter === 0) {
+                    dropOverlay.classList.remove('active');
+                }
+            });
+
+            document.body.addEventListener('dragover', (e) => {
+                e.preventDefault(); // Necessary to allow drop
+            });
+
+            document.body.addEventListener('drop', (e) => {
+                e.preventDefault(); // Prevent default browser behavior (open file map)
+                dragCounter = 0;
+                dropOverlay.classList.remove('active');
+
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+                    handleFileImport(file);
+                }
+            });
+
+            // Also close drop overlay if drop happens on it
+            dropOverlay.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dragCounter = 0;
+                dropOverlay.classList.remove('active');
+
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+                    handleFileImport(file);
+                }
+            });
         }
 
-        updateGenStatus('正在读取响应...');
-        logToConsole('正在读取响应体...', 'data');
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        window.closeModal = function (id) { document.getElementById(id).classList.remove('active'); };
 
-        const data = await resp.json();
-        const elapsed2 = Date.now() - startTime;
-        logToConsole(`响应读取完成 (${elapsed2}ms)`, 'data');
-
-        // Log token usage if available
-        if (data.usage) {
-            const u = data.usage;
-            logToConsole(`Token 用量: 输入=${u.prompt_tokens || u.input_tokens || '?'}, 输出=${u.completion_tokens || u.output_tokens || '?'}, 总计=${u.total_tokens || '?'}`, 'info');
+        function showToast(msg, type = '') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = msg;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
 
-        updateGenStatus('正在解析体素数据...');
-        logToConsole('正在解析 JSON 数据...', 'data');
+        // ======================== GENERATION ========================
+        function setGeneratingUI(active, statusText) {
+            const indicator = document.getElementById('generating-indicator');
+            const promptContainer = document.getElementById('prompt-container');
+            const genText = document.getElementById('gen-text');
 
-        const rawArray = provider.parseResponse(data);
-        logToConsole(`解析到 ${rawArray.length} 个原始体素对象`, 'info');
+            if (active) {
+                indicator.classList.add('active');
+                promptContainer.classList.add('disabled');
+                genText.textContent = statusText || 'AI 正在生成...';
+            } else {
+                indicator.classList.remove('active');
+                promptContainer.classList.remove('disabled');
+            }
+        }
 
-        const voxelData = parseVoxelData(rawArray);
-        const elapsed3 = Date.now() - startTime;
+        function updateGenStatus(text) {
+            document.getElementById('gen-text').textContent = text;
+        }
 
-        if (voxelData.length === 0) throw new Error('AI 返回了空数据');
+        async function generate() {
+            const prompt = document.getElementById('prompt-input').value.trim();
+            if (!prompt || isGenerating) return;
 
-        updateGenStatus('正在渲染模型...');
-        logToConsole(`正在渲染 ${voxelData.length} 个体素...`, 'data');
+            const config = getProviderConfig(activeProvider);
+            if (!config.key) {
+                showToast('请先配置 API Key（点击左上角 ⚙️）', 'error');
+                toggleSettings();
+                return;
+            }
 
-        engine.loadModel(voxelData);
-        document.getElementById('voxel-count').textContent = voxelData.length;
+            isGenerating = true;
+            document.getElementById('btn-generate').disabled = true;
+            setGeneratingUI(true, `${PROVIDERS[activeProvider].name} 正在生成...`);
+            setConsoleLive(true);
 
-        logToConsole(`✅ 生成完成！共 ${voxelData.length} 个体素，总耗时 ${elapsed3}ms`, 'success');
-        showToast(`✨ 生成了 ${voxelData.length} 个体素`, 'success');
-        document.getElementById('prompt-input').value = '';
-        autoResizeTextarea(document.getElementById('prompt-input'));
+            // Auto-open console to show progress
+            if (!document.getElementById('console-panel').classList.contains('open')) {
+                toggleConsole();
+            }
 
-    } catch (err) {
-        const elapsed = Date.now() - startTime;
-        logToConsole(`❌ 生成失败 (${elapsed}ms): ${err.message}`, 'error');
-        showToast('生成失败: ' + err.message, 'error');
-    } finally {
-        isGenerating = false;
-        document.getElementById('btn-generate').disabled = !document.getElementById('prompt-input').value.trim();
-        setGeneratingUI(false);
-        setConsoleLive(false);
-    }
-}
+            logToConsole(`━━━ 新生成任务 ━━━`, 'info');
+            logToConsole(`提供商: ${PROVIDERS[activeProvider].name}`, 'info');
+            logToConsole(`模型: ${config.model}`, 'info');
+            logToConsole(`提示词: "${prompt}"`, 'info');
 
-// ======================== BOOT ========================
-init();
-</script>
+            const startTime = Date.now();
+            const complexity = parseInt(document.getElementById('param-complexity').value) || 300;
+            const maxSize = parseInt(document.getElementById('param-max-size').value) || 32;
+
+            try {
+                const provider = PROVIDERS[activeProvider];
+                const req = provider.buildRequest(config.key, config.model, prompt, config.baseUrl, complexity, maxSize);
+
+                logToConsole(`发送请求到 ${req.url}`, 'data');
+                updateGenStatus('正在发送请求...');
+
+                const resp = await fetch(req.url, {
+                    method: 'POST',
+                    headers: req.headers,
+                    body: JSON.stringify(req.body)
+                });
+
+                const elapsed1 = Date.now() - startTime;
+                logToConsole(`收到响应 HTTP ${resp.status} (${elapsed1}ms)`, resp.ok ? 'success' : 'error');
+
+                if (!resp.ok) {
+                    const errText = await resp.text();
+                    let errMsg = `API 请求失败 (${resp.status})`;
+                    try {
+                        const errJson = JSON.parse(errText);
+                        errMsg = errJson.error?.message || errJson.message || errMsg;
+                    } catch { }
+                    logToConsole(`错误详情: ${errMsg}`, 'error');
+                    throw new Error(errMsg);
+                }
+
+                updateGenStatus('正在读取响应...');
+                logToConsole('正在读取响应体...', 'data');
+
+                const data = await resp.json();
+                const elapsed2 = Date.now() - startTime;
+                logToConsole(`响应读取完成 (${elapsed2}ms)`, 'data');
+
+                // Log token usage if available
+                if (data.usage) {
+                    const u = data.usage;
+                    logToConsole(`Token 用量: 输入=${u.prompt_tokens || u.input_tokens || '?'}, 输出=${u.completion_tokens || u.output_tokens || '?'}, 总计=${u.total_tokens || '?'}`, 'info');
+                }
+
+                updateGenStatus('正在解析体素数据...');
+                logToConsole('正在解析 JSON 数据...', 'data');
+
+                const rawArray = provider.parseResponse(data);
+                logToConsole(`解析到 ${rawArray.length} 个原始体素对象`, 'info');
+
+                const voxelData = parseVoxelData(rawArray);
+                const elapsed3 = Date.now() - startTime;
+
+                if (voxelData.length === 0) throw new Error('AI 返回了空数据');
+
+                updateGenStatus('正在渲染模型...');
+                logToConsole(`正在渲染 ${voxelData.length} 个体素...`, 'data');
+
+                engine.loadModel(voxelData);
+                document.getElementById('voxel-count').textContent = voxelData.length;
+
+                logToConsole(`✅ 生成完成！共 ${voxelData.length} 个体素，总耗时 ${elapsed3}ms`, 'success');
+                showToast(`✨ 生成了 ${voxelData.length} 个体素`, 'success');
+                document.getElementById('prompt-input').value = '';
+                autoResizeTextarea(document.getElementById('prompt-input'));
+
+            } catch (err) {
+                const elapsed = Date.now() - startTime;
+                logToConsole(`❌ 生成失败 (${elapsed}ms): ${err.message}`, 'error');
+                showToast('生成失败: ' + err.message, 'error');
+            } finally {
+                isGenerating = false;
+                document.getElementById('btn-generate').disabled = !document.getElementById('prompt-input').value.trim();
+                setGeneratingUI(false);
+                setConsoleLive(false);
+            }
+        }
+
+        // ======================== BOOT ========================
+        init();
+    </script>
 </body>
+
 </html>
