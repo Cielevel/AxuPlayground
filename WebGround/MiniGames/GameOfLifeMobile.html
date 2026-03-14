@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>生命游戏 手机版</title>
+    <style>
+        :root {
+            --bg-color: #1e1e24;
+            --grid-color: #2b2b36;
+            --cell-alive: #4ade80;
+            --cell-dead: #1e1e24;
+            --text-color: #f8fafc;
+            --panel-bg: rgba(30, 30, 36, 0.85);
+            --btn-bg: #334155;
+            --btn-hover: #475569;
+            --accent: #3b82f6;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            touch-action: none; /* Prevent default touch actions like scrolling */
+        }
+
+        #gameCanvas {
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            background-color: var(--cell-dead);
+            touch-action: none;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            width: 90%;
+            max-width: 400px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        button {
+            background-color: var(--btn-bg);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 16px; /* Larger font for mobile */
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            flex: 1 1 auto; /* Allow buttons to wrap and resize */
+            min-width: 80px;
+        }
+
+        button:active {
+            background-color: var(--btn-hover);
+            transform: translateY(1px);
+        }
+
+        button.primary {
+            background-color: var(--accent);
+            min-width: 100px;
+        }
+
+        button.primary:active {
+            background-color: #2563eb;
+        }
+
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .slider-group label {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        input[type="range"] {
+            accent-color: var(--accent);
+            width: 100%;
+            height: 20px; /* Larger touch target for slider */
+        }
+
+        .stats {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(10px);
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 14px;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 10;
+        }
+
+        .stats span {
+            color: var(--cell-alive);
+            font-weight: bold;
+        }
+
+        .header-title {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 20px; /* Slightly smaller for mobile */
+            font-weight: bold;
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .controls {
+                bottom: 10px;
+                padding: 10px;
+                gap: 8px;
+            }
+            button {
+                padding: 10px;
+                font-size: 14px;
+            }
+            .stats {
+                top: 10px;
+                left: 10px;
+            }
+            .header-title {
+                top: 10px;
+                right: 10px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="stats">
+        <div>世代: <span id="genCount">0</span></div>
+        <div>存活: <span id="aliveCount">0</span></div>
+    </div>
+
+    <div class="header-title">Game of Life Mobile</div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="controls">
+        <button id="btnPlayPause" class="primary">▶ 播放</button>
+        <button id="btnStep">⏭ 步进</button>
+        <button id="btnRandom">🎲 随机</button>
+        <button id="btnClear">🗑 清空</button>
+
+        <div class="slider-group">
+            <label for="speedSlider">速度</label>
+            <input type="range" id="speedSlider" min="1" max="60" value="15">
+        </div>
+
+        <div class="slider-group">
+            <label for="sizeSlider">网格大小</label>
+            <input type="range" id="sizeSlider" min="10" max="40" value="20"> <!-- Increased default and min for touch -->
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const btnPlayPause = document.getElementById('btnPlayPause');
+        const btnStep = document.getElementById('btnStep');
+        const btnRandom = document.getElementById('btnRandom');
+        const btnClear = document.getElementById('btnClear');
+        const speedSlider = document.getElementById('speedSlider');
+        const sizeSlider = document.getElementById('sizeSlider');
+        const genCountEl = document.getElementById('genCount');
+        const aliveCountEl = document.getElementById('aliveCount');
+
+        let isPlaying = false;
+        let animationId = null;
+        let lastTime = 0;
+        let generation = 0;
+
+        // 游戏配置
+        let cellSize = parseInt(sizeSlider.value);
+        let fps = parseInt(speedSlider.value);
+        let cols, rows;
+        let grid = [];
+
+        // 初始化
+        function init() {
+            resizeCanvas();
+            createGrid();
+            randomizeGrid();
+            drawGrid();
+            updateStats();
+        }
+
+        // 调整画布大小以填满屏幕（留出边距）
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            cols = Math.floor(canvas.width / cellSize);
+            rows = Math.floor(canvas.height / cellSize);
+        }
+
+        // 创建空网格
+        function createGrid() {
+            grid = new Array(cols).fill(null).map(() => new Array(rows).fill(0));
+            generation = 0;
+        }
+
+        // 随机填充网格
+        function randomizeGrid() {
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    grid[i][j] = Math.random() > 0.85 ? 1 : 0;
+                }
+            }
+            generation = 0;
+            drawGrid();
+            updateStats();
+        }
+
+        // 清空网格
+        function clearGrid() {
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    grid[i][j] = 0;
+                }
+            }
+            generation = 0;
+            drawGrid();
+            updateStats();
+        }
+
+        // 核心逻辑：计算下一代
+        function nextGeneration() {
+            let nextGrid = new Array(cols).fill(null).map(() => new Array(rows).fill(0));
+
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    let state = grid[i][j];
+                    let neighbors = countNeighbors(i, j);
+
+                    // 生命游戏规则
+                    if (state === 0 && neighbors === 3) {
+                        nextGrid[i][j] = 1; // 繁衍
+                    } else if (state === 1 && (neighbors < 2 || neighbors > 3)) {
+                        nextGrid[i][j] = 0; // 孤独或拥挤而死
+                    } else {
+                        nextGrid[i][j] = state; // 保持现状
+                    }
+                }
+            }
+
+            grid = nextGrid;
+            generation++;
+            drawGrid();
+            updateStats();
+        }
+
+        // 计算周围存活的邻居数
+        function countNeighbors(x, y) {
+            let sum = 0;
+            for (let i = -1; i < 2; i++) {
+                for (let j = -1; j < 2; j++) {
+                    // 环绕屏幕边缘
+                    let col = (x + i + cols) % cols;
+                    let row = (y + j + rows) % rows;
+                    sum += grid[col][row];
+                }
+            }
+            sum -= grid[x][y]; // 排除自己
+            return sum;
+        }
+
+        // 绘制网格
+        function drawGrid() {
+            // 背景
+            ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--cell-dead');
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 绘制存活细胞
+            ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--cell-alive');
+            ctx.beginPath();
+
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    if (grid[i][j] === 1) {
+                        // 留出1像素作为网格线
+                        ctx.rect(i * cellSize, j * cellSize, cellSize - 1, cellSize - 1);
+                    }
+                }
+            }
+            ctx.fill();
+
+            // 绘制网格线 (仅在格子较大时绘制，提升性能和视觉效果)
+            if (cellSize >= 8) {
+                ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--grid-color');
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                for (let i = 0; i <= cols; i++) {
+                    ctx.moveTo(i * cellSize, 0);
+                    ctx.lineTo(i * cellSize, canvas.height);
+                }
+                for (let j = 0; j <= rows; j++) {
+                    ctx.moveTo(0, j * cellSize);
+                    ctx.lineTo(canvas.width, j * cellSize);
+                }
+                ctx.stroke();
+            }
+        }
+
+        // 更新统计面板
+        function updateStats() {
+            let aliveCount = 0;
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    if (grid[i][j] === 1) aliveCount++;
+                }
+            }
+            genCountEl.textContent = generation;
+            aliveCountEl.textContent = aliveCount;
+        }
+
+        // 游戏循环
+        function loop(timestamp) {
+            if (!isPlaying) return;
+
+            if (timestamp - lastTime >= 1000 / fps) {
+                nextGeneration();
+                lastTime = timestamp;
+            }
+
+            animationId = requestAnimationFrame(loop);
+        }
+
+        // 切换播放/暂停
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            if (isPlaying) {
+                btnPlayPause.innerHTML = '⏸ 暂停';
+                btnPlayPause.classList.remove('primary');
+                lastTime = performance.now();
+                animationId = requestAnimationFrame(loop);
+            } else {
+                btnPlayPause.innerHTML = '▶ 播放';
+                btnPlayPause.classList.add('primary');
+                cancelAnimationFrame(animationId);
+            }
+        }
+
+        // 事件监听
+        btnPlayPause.addEventListener('click', togglePlay);
+        btnPlayPause.addEventListener('touchstart', (e) => { e.preventDefault(); togglePlay(); });
+
+        btnStep.addEventListener('click', () => {
+            if (isPlaying) togglePlay();
+            nextGeneration();
+        });
+        btnStep.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (isPlaying) togglePlay();
+            nextGeneration();
+        });
+
+        btnRandom.addEventListener('click', randomizeGrid);
+        btnRandom.addEventListener('touchstart', (e) => { e.preventDefault(); randomizeGrid(); });
+
+
+        btnClear.addEventListener('click', () => {
+            if (isPlaying) togglePlay();
+            clearGrid();
+        });
+        btnClear.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (isPlaying) togglePlay();
+            clearGrid();
+        });
+
+        speedSlider.addEventListener('input', (e) => {
+            fps = parseInt(e.target.value);
+        });
+
+        sizeSlider.addEventListener('change', (e) => {
+            if (isPlaying) togglePlay();
+            cellSize = parseInt(e.target.value);
+            let oldCols = cols;
+            let oldRows = rows;
+            let oldGrid = grid;
+
+            resizeCanvas();
+            createGrid();
+
+            // 尝试保留旧网格中心的内容
+            let offsetX = Math.floor((cols - oldCols) / 2);
+            let offsetY = Math.floor((rows - oldRows) / 2);
+
+            for (let i = 0; i < oldCols; i++) {
+                for (let j = 0; j < oldRows; j++) {
+                    let newI = i + offsetX;
+                    let newJ = j + offsetY;
+                    if (newI >= 0 && newI < cols && newJ >= 0 && newJ < rows) {
+                        grid[newI][newJ] = oldGrid[i][j];
+                    }
+                }
+            }
+            drawGrid();
+            updateStats();
+        });
+
+        // 窗口大小改变
+        window.addEventListener('resize', () => {
+            let oldCols = cols;
+            let oldRows = rows;
+            let oldGrid = grid;
+
+            resizeCanvas();
+            createGrid();
+
+            for (let i = 0; i < Math.min(oldCols, cols); i++) {
+                for (let j = 0; j < Math.min(oldRows, rows); j++) {
+                    grid[i][j] = oldGrid[i][j];
+                }
+            }
+            drawGrid();
+        });
+
+        // 鼠标交互：点击和拖拽绘制细胞
+        let isDrawing = false;
+        let drawMode = 1; // 1: 画, 0: 擦除
+
+        // Mouse Events
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            handlePointerEvent(e.clientX, e.clientY);
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            handlePointerEvent(e.clientX, e.clientY, true);
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDrawing = false;
+        });
+
+        // Touch Events
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Prevent scrolling
+            if(e.touches.length > 0) {
+                 isDrawing = true;
+                 handlePointerEvent(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault(); // Prevent scrolling
+            if (!isDrawing || e.touches.length === 0) return;
+            handlePointerEvent(e.touches[0].clientX, e.touches[0].clientY, true);
+        });
+
+        window.addEventListener('touchend', () => {
+            isDrawing = false;
+        });
+
+        window.addEventListener('touchcancel', () => {
+            isDrawing = false;
+        });
+
+        function handlePointerEvent(clientX, clientY, isMove = false) {
+            let rect = canvas.getBoundingClientRect();
+            let x = Math.floor((clientX - rect.left) / cellSize);
+            let y = Math.floor((clientY - rect.top) / cellSize);
+
+            if (x >= 0 && x < cols && y >= 0 && y < rows) {
+                if (!isMove) {
+                    drawMode = grid[x][y] === 1 ? 0 : 1;
+                    grid[x][y] = drawMode;
+                    drawGrid();
+                    updateStats();
+                } else {
+                     if (grid[x][y] !== drawMode) {
+                        grid[x][y] = drawMode;
+                        drawGrid();
+                        updateStats();
+                    }
+                }
+            }
+        }
+
+        // 启动
+        init();
+
+    </script>
+</body>
+</html>
