@@ -28,7 +28,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-       - name: Prepare static files
+      - name: Prepare static files
         run: |
           mkdir -p _site/VoxForgeV2
           # Copy everything from VoxelForge folder to subdirectory
