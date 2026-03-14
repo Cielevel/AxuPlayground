@@ -30,11 +30,11 @@ jobs:
 
       - name: Prepare static files
         run: |
-          mkdir _site
-          # Copy everything from VoxelForge folder to root of site
-          cp -r WebGround/VoxelForge/* _site/
-          # Rename VoxelForgeV2.html as the entry point (index.html)
-          mv _site/VoxelForgeV2.html _site/index.html
+          mkdir -p _site/VoxForgeV2
+          # Copy everything from VoxelForge folder to subdirectory
+          cp -r WebGround/VoxelForge/* _site/VoxForgeV2/
+          # Rename VoxelForgeV2.html as the entry point
+          mv _site/VoxForgeV2/VoxelForgeV2.html _site/VoxForgeV2/index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
