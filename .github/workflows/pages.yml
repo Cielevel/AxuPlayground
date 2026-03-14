@@ -30,11 +30,15 @@ jobs:
 
       - name: Prepare static files
         run: |
-          mkdir -p _site/VoxForgeV2
+          mkdir -p _site/VoxelForgeV2
           # Copy everything from VoxelForge folder to subdirectory
-          cp -r WebGround/VoxelForge/* _site/VoxForgeV2/
+          cp -r WebGround/VoxelForge/* _site/VoxelForgeV2/
           # Rename VoxelForgeV2.html as the entry point
-          mv _site/VoxForgeV2/VoxelForgeV2.html _site/VoxForgeV2/index.html
+          mv _site/VoxelForgeV2/VoxelForgeV2.html _site/VoxelForgeV2/index.html
+
+          mkdir -p _site/GameOfLife
+          # Copy GameOfLife.html to subdirectory and rename to index.html
+          cp WebGround/MiniGames/GameOfLife.html _site/GameOfLife/index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
