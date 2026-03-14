@@ -40,6 +40,10 @@ jobs:
           # Copy GameOfLife.html to subdirectory and rename to index.html
           cp WebGround/MiniGames/GameOfLife.html _site/GameOfLife/index.html
 
+          mkdir -p _site/GameOfLifeMobile
+          # Copy GameOfLifeMobile.html to subdirectory and rename to index.html
+          cp WebGround/MiniGames/GameOfLifeMobile.html _site/GameOfLifeMobile/index.html
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
