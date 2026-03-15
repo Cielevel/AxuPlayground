@@ -44,6 +44,9 @@ jobs:
           # Copy GameOfLifeMobile.html to subdirectory and rename to index.html
           cp WebGround/MiniGames/GameOfLifeMobile.html _site/GameOfLifeMobile/index.html
 
+          # Copy root index.html to site root
+          cp index.html _site/index.html
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
