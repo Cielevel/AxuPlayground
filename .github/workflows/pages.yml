@@ -36,6 +36,10 @@ jobs:
           # Rename VoxelForgeV2.html as the entry point
           mv _site/VoxelForgeV2/VoxelForgeV2.html _site/VoxelForgeV2/index.html
 
+          mkdir -p _site/VoxelEditor
+          # Copy VoxelEditor.html to subdirectory and rename to index.html
+          cp WebGround/VoxelEditor.html _site/VoxelEditor/index.html
+
           mkdir -p _site/GameOfLife
           # Copy GameOfLife.html to subdirectory and rename to index.html
           cp WebGround/MiniGames/GameOfLife.html _site/GameOfLife/index.html
@@ -43,6 +47,17 @@ jobs:
           mkdir -p _site/GameOfLifeMobile
           # Copy GameOfLifeMobile.html to subdirectory and rename to index.html
           cp WebGround/MiniGames/GameOfLifeMobile.html _site/GameOfLifeMobile/index.html
+
+          mkdir -p _site/LeekFund
+          # Copy LeekFund简易版.html to subdirectory and rename to index.html
+          cp WebGround/SimplePage/LeekFund简易版.html _site/LeekFund/index.html
+
+          mkdir -p _site/TransparentBrush
+          # Copy 图片透明笔刷.html to subdirectory and rename to index.html
+          cp WebGround/SimplePage/图片透明笔刷.html _site/TransparentBrush/index.html
+
+          # Copy root index.html to site root
+          cp index.html _site/index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
