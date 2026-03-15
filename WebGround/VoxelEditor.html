@@ -143,24 +143,37 @@
 </head>
 <body>
     <div id="ui-panel">
-        <div class="ui-header">Voxel Editor</div>
+        <div class="ui-header">体素编辑器</div>
 
         <div class="ui-row">
-            <button id="btn-add" class="btn active">Add</button>
-            <button id="btn-remove" class="btn">Remove</button>
+            <button id="btn-add" class="btn active">添加</button>
+            <button id="btn-remove" class="btn">移除</button>
         </div>
 
         <div class="color-picker-container">
-            <label for="color-picker" style="font-size: 0.9rem; font-weight: 500;">Voxel Color</label>
+            <label for="color-picker" style="font-size: 0.9rem; font-weight: 500;">体素颜色</label>
             <input type="color" id="color-picker" value="#0071e3">
         </div>
 
         <div class="ui-row">
-            <button id="btn-clear" class="btn">Clear Canvas</button>
+            <button id="btn-clear" class="btn">清空画布</button>
         </div>
 
         <div class="ui-row" style="margin-top: 10px;">
-            <button id="btn-theme" class="btn">Toggle Theme</button>
+            <button id="btn-import-json" class="btn">导入 JSON</button>
+            <input type="file" id="file-import" accept=".json" style="display: none;">
+        </div>
+
+        <div class="ui-row" style="margin-top: 10px; flex-direction: column; align-items: stretch; gap: 5px;">
+            <div style="display: flex; gap: 10px;">
+                <label style="flex: 1; display: flex; align-items: center; gap: 5px; font-size: 0.9rem;">长: <input type="number" id="input-length" value="10" style="width: 100%; border-radius: 4px; border: 1px solid var(--panel-border); background: var(--btn-bg); color: var(--text-color); padding: 4px; box-sizing: border-box;"></label>
+                <label style="flex: 1; display: flex; align-items: center; gap: 5px; font-size: 0.9rem;">宽: <input type="number" id="input-width" value="10" style="width: 100%; border-radius: 4px; border: 1px solid var(--panel-border); background: var(--btn-bg); color: var(--text-color); padding: 4px; box-sizing: border-box;"></label>
+            </div>
+            <button id="btn-generate-block" class="btn" style="margin-top: 5px;">生成方块</button>
+        </div>
+
+        <div class="ui-row" style="margin-top: 10px;">
+            <button id="btn-theme" class="btn">切换主题</button>
         </div>
     </div>
 
@@ -398,6 +411,88 @@
             }
         });
 
+        // Generate Block
+        const btnGenerateBlock = document.getElementById('btn-generate-block');
+        const inputLength = document.getElementById('input-length');
+        const inputWidth = document.getElementById('input-width');
+
+        btnGenerateBlock.addEventListener('click', () => {
+            const length = parseInt(inputLength.value) || 10;
+            const width = parseInt(inputWidth.value) || 10;
+
+            const halfLength = Math.floor(length / 2);
+            const halfWidth = Math.floor(width / 2);
+
+            for (let x = -halfLength; x < length - halfLength; x++) {
+                for (let z = -halfWidth; z < width - halfWidth; z++) {
+                    const cubeMaterial = new THREE.MeshStandardMaterial({
+                        color: window.editorCurrentColor,
+                        roughness: 0.5,
+                        metalness: 0.1
+                    });
+                    const voxel = new THREE.Mesh(cubeGeo, cubeMaterial);
+                    // y is 0.5 so it sits on the plane
+                    voxel.position.set(x + 0.5, 0.5, z + 0.5);
+                    voxel.castShadow = true;
+                    voxel.receiveShadow = true;
+                    scene.add(voxel);
+                    objects.push(voxel);
+                }
+            }
+        });
+
+        // Import JSON
+        const btnImportJson = document.getElementById('btn-import-json');
+        const fileImport = document.getElementById('file-import');
+
+        btnImportJson.addEventListener('click', () => {
+            fileImport.click();
+        });
+
+        fileImport.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data)) {
+                        // Optional: Clear existing voxels before import
+                        // while(objects.length > 1) {
+                        //     const voxel = objects.pop();
+                        //     scene.remove(voxel);
+                        // }
+
+                        data.forEach(v => {
+                            if (v.x !== undefined && v.y !== undefined && v.z !== undefined && v.color) {
+                                const cubeMaterial = new THREE.MeshStandardMaterial({
+                                    color: parseInt(v.color.replace('#', '0x')),
+                                    roughness: 0.5,
+                                    metalness: 0.1
+                                });
+                                const voxel = new THREE.Mesh(cubeGeo, cubeMaterial);
+                                // Adjust position by +0.5 to align with grid
+                                voxel.position.set(v.x + 0.5, v.y + 0.5, v.z + 0.5);
+                                voxel.castShadow = true;
+                                voxel.receiveShadow = true;
+                                scene.add(voxel);
+                                objects.push(voxel);
+                            }
+                        });
+                    } else {
+                        alert('Invalid JSON format. Expected an array of voxels.');
+                    }
+                } catch (error) {
+                    alert('Error parsing JSON file.');
+                    console.error('JSON Parse Error:', error);
+                }
+            };
+            reader.readAsText(file);
+            // Reset input so the same file can be selected again
+            event.target.value = '';
+        });
+
         // Theme Toggle
         const btnTheme = document.getElementById('btn-theme');
         let isDarkTheme = false;
@@ -408,9 +503,11 @@
             if (isDarkTheme) {
                 document.documentElement.setAttribute('data-theme', 'dark');
                 scene.background = new THREE.Color(0x1a1a2e);
+                plane.material.color.setHex(0x2a2a3e);
             } else {
                 document.documentElement.removeAttribute('data-theme');
                 scene.background = new THREE.Color(0xf5f5f7);
+                plane.material.color.setHex(0xffffff);
             }
         });
 
