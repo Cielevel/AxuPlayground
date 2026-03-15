@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Game</title>
+    <style>
+        :root {
+            --text-main: #ffffff;
+            --bg-deep: #000000;
+        }
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: var(--bg-deep); color: var(--text-main);
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            overflow: hidden; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+        .bg-blur {
+            position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at 50% 50%, #4a00e0 0%, #00e5ff 30%, #000000 70%);
+            filter: blur(120px); opacity: 0.3; z-index: -1;
+            animation: rotate 60s linear infinite alternate;
+        }
+        @keyframes rotate { 100% { transform: rotate(-180deg); } }
+        h1 { font-size: 3rem; margin: 10px 0; font-weight: 900; letter-spacing: 2px; }
+        .info { font-size: 1.5rem; margin-bottom: 20px; font-weight: 300; opacity: 0.8; }
+        .grid {
+            display: grid; grid-template-columns: repeat(4, 80px); gap: 10px;
+            background: rgba(0, 0, 0, 0.4); padding: 15px; border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px); perspective: 1000px;
+        }
+        .card {
+            width: 80px; height: 80px; position: relative;
+            transform-style: preserve-3d; transition: transform 0.5s;
+            cursor: pointer;
+        }
+        .card.flip { transform: rotateY(180deg); cursor: default; }
+        .face {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; border-radius: 5px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem;
+        }
+        .front { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
+        .back { background: #00e5ff; color: #000; transform: rotateY(180deg); border: 1px solid #00e5ff; }
+        .matched .back { background: #00ff55; border-color: #00ff55; }
+        button {
+            margin-top: 20px; padding: 10px 30px; font-size: 1rem; cursor: pointer;
+            background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px; transition: all 0.3s;
+        }
+        button:hover { background: rgba(255,255,255,0.2); }
+    </style>
+</head>
+<body>
+    <div class="bg-blur"></div>
+    <h1>MEMORY GAME</h1>
+    <div class="info">Moves: <span id="movesVal">0</span> | Matches: <span id="matchesVal">0</span></div>
+    <div class="grid" id="grid"></div>
+    <button onclick="init()">Restart</button>
+
+    <script>
+        const emojis = ['🌟','🔥','💧','⚡','❄️','🍀','🌙','☀️'];
+        const gridEl = document.getElementById('grid');
+        const movesEl = document.getElementById('movesVal');
+        const matchesEl = document.getElementById('matchesVal');
+
+        let cards = [];
+        let flipped = [];
+        let moves = 0;
+        let matches = 0;
+        let locked = false;
+
+        function init() {
+            gridEl.innerHTML = '';
+            cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+            moves = 0; matches = 0; locked = false; flipped = [];
+            movesEl.innerText = moves; matchesEl.innerText = matches;
+
+            cards.forEach((emoji, index) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.emoji = emoji;
+                card.dataset.index = index;
+
+                const front = document.createElement('div');
+                front.classList.add('face', 'front');
+
+                const back = document.createElement('div');
+                back.classList.add('face', 'back');
+                back.innerText = emoji;
+
+                card.appendChild(front);
+                card.appendChild(back);
+                card.addEventListener('click', flipCard);
+                gridEl.appendChild(card);
+            });
+        }
+
+        function flipCard() {
+            if(locked || this.classList.contains('flip')) return;
+
+            this.classList.add('flip');
+            flipped.push(this);
+
+            if(flipped.length === 2) {
+                moves++;
+                movesEl.innerText = moves;
+                locked = true;
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            let [c1, c2] = flipped;
+            if(c1.dataset.emoji === c2.dataset.emoji) {
+                c1.classList.add('matched');
+                c2.classList.add('matched');
+                matches++;
+                matchesEl.innerText = matches;
+                flipped = [];
+                locked = false;
+                if(matches === emojis.length) setTimeout(() => alert(`You win in ${moves} moves!`), 300);
+            } else {
+                setTimeout(() => {
+                    c1.classList.remove('flip');
+                    c2.classList.remove('flip');
+                    flipped = [];
+                    locked = false;
+                }, 1000);
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

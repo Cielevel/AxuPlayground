@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris</title>
+    <style>
+        :root {
+            --text-main: #ffffff;
+            --bg-deep: #000000;
+        }
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: var(--bg-deep); color: var(--text-main);
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            overflow: hidden; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+        .bg-blur {
+            position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at 50% 50%, #4a00e0 0%, #ff0055 30%, #000000 70%);
+            filter: blur(120px); opacity: 0.4; z-index: -1;
+            animation: rotate 30s linear infinite reverse;
+        }
+        @keyframes rotate { 100% { transform: rotate(360deg); } }
+        h1 { font-size: 3rem; margin: 10px 0; font-weight: 900; letter-spacing: 2px; }
+        .score { font-size: 1.2rem; margin-bottom: 10px; font-weight: 300; opacity: 0.8; }
+        canvas {
+            background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); border-radius: 5px;
+            backdrop-filter: blur(10px);
+        }
+        .container { display: flex; gap: 20px; align-items: flex-start; }
+    </style>
+</head>
+<body>
+    <div class="bg-blur"></div>
+    <h1>TETRIS</h1>
+    <div class="score">Score: <span id="scoreVal">0</span></div>
+    <div class="container">
+        <canvas id="gameCanvas" width="300" height="600"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('scoreVal');
+
+        const ROWS = 20;
+        const COLS = 10;
+        const BLOCK_SIZE = 30;
+        let score = 0;
+
+        let board = Array.from({length: ROWS}, () => Array(COLS).fill(0));
+
+        const SHAPES = [
+            [],
+            [[1,1,1,1]], // I
+            [[2,0,0],[2,2,2]], // J
+            [[0,0,3],[3,3,3]], // L
+            [[4,4],[4,4]], // O
+            [[0,5,5],[5,5,0]], // S
+            [[0,6,0],[6,6,6]], // T
+            [[7,7,0],[0,7,7]]  // Z
+        ];
+        const COLORS = [null, '#00e5ff', '#0055ff', '#ffaa00', '#ffea00', '#00ff55', '#aa00ff', '#ff0055'];
+
+        let piece = { shape: [], color: 0, x: 0, y: 0 };
+
+        function spawnPiece() {
+            const typeId = Math.floor(Math.random() * 7) + 1;
+            const shape = SHAPES[typeId];
+            piece = {
+                shape: shape,
+                color: typeId,
+                x: Math.floor(COLS/2) - Math.floor(shape[0].length/2),
+                y: 0
+            };
+            if (!isValid(piece.x, piece.y, piece.shape)) {
+                board = Array.from({length: ROWS}, () => Array(COLS).fill(0));
+                score = 0; scoreEl.innerText = score;
+            }
+        }
+
+        function isValid(x, y, shape) {
+            for (let r = 0; r < shape.length; r++) {
+                for (let c = 0; c < shape[r].length; c++) {
+                    if (shape[r][c] !== 0) {
+                        let nx = x + c;
+                        let ny = y + r;
+                        if (nx < 0 || nx >= COLS || ny >= ROWS) return false;
+                        if (ny >= 0 && board[ny][nx] !== 0) return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function rotate(shape) {
+            return shape[0].map((val, index) => shape.map(row => row[index]).reverse());
+        }
+
+        function merge() {
+            for (let r = 0; r < piece.shape.length; r++) {
+                for (let c = 0; c < piece.shape[r].length; c++) {
+                    if (piece.shape[r][c] !== 0 && piece.y + r >= 0) {
+                        board[piece.y + r][piece.x + c] = piece.color;
+                    }
+                }
+            }
+            clearLines();
+            spawnPiece();
+        }
+
+        function clearLines() {
+            let lines = 0;
+            for (let r = ROWS - 1; r >= 0; r--) {
+                let isFull = true;
+                for (let c = 0; c < COLS; c++) {
+                    if (board[r][c] === 0) { isFull = false; break; }
+                }
+                if (isFull) {
+                    board.splice(r, 1);
+                    board.unshift(Array(COLS).fill(0));
+                    lines++;
+                    r++; // check same row again
+                }
+            }
+            if(lines > 0) {
+                score += [0, 40, 100, 300, 1200][lines];
+                scoreEl.innerText = score;
+            }
+        }
+
+        function update() {
+            if (isValid(piece.x, piece.y + 1, piece.shape)) {
+                piece.y++;
+            } else {
+                merge();
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Draw board
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    if (board[r][c] !== 0) {
+                        ctx.fillStyle = COLORS[board[r][c]];
+                        ctx.fillRect(c * BLOCK_SIZE, r * BLOCK_SIZE, BLOCK_SIZE-1, BLOCK_SIZE-1);
+                    }
+                }
+            }
+            // Draw piece
+            for (let r = 0; r < piece.shape.length; r++) {
+                for (let c = 0; c < piece.shape[r].length; c++) {
+                    if (piece.shape[r][c] !== 0) {
+                        ctx.fillStyle = COLORS[piece.color];
+                        ctx.fillRect((piece.x + c) * BLOCK_SIZE, (piece.y + r) * BLOCK_SIZE, BLOCK_SIZE-1, BLOCK_SIZE-1);
+                    }
+                }
+            }
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'ArrowLeft' && isValid(piece.x - 1, piece.y, piece.shape)) piece.x--;
+            if (e.key === 'ArrowRight' && isValid(piece.x + 1, piece.y, piece.shape)) piece.x++;
+            if (e.key === 'ArrowDown' && isValid(piece.x, piece.y + 1, piece.shape)) piece.y++;
+            if (e.key === 'ArrowUp') {
+                const rotated = rotate(piece.shape);
+                if (isValid(piece.x, piece.y, rotated)) piece.shape = rotated;
+            }
+            if (e.key === ' ') {
+                while(isValid(piece.x, piece.y + 1, piece.shape)) piece.y++;
+                merge();
+            }
+            draw();
+        });
+
+        spawnPiece();
+        setInterval(() => {
+            update();
+            draw();
+        }, 500);
+    </script>
+</body>
+</html>

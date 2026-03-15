@@ -48,6 +48,36 @@ jobs:
           # Copy GameOfLifeMobile.html to subdirectory and rename to index.html
           cp WebGround/MiniGames/GameOfLifeMobile.html _site/GameOfLifeMobile/index.html
 
+          mkdir -p _site/Snake
+          cp WebGround/MiniGames/Snake.html _site/Snake/index.html
+
+          mkdir -p _site/Tetris
+          cp WebGround/MiniGames/Tetris.html _site/Tetris/index.html
+
+          mkdir -p _site/Pong
+          cp WebGround/MiniGames/Pong.html _site/Pong/index.html
+
+          mkdir -p _site/TicTacToe
+          cp WebGround/MiniGames/TicTacToe.html _site/TicTacToe/index.html
+
+          mkdir -p _site/Minesweeper
+          cp WebGround/MiniGames/Minesweeper.html _site/Minesweeper/index.html
+
+          mkdir -p _site/Breakout
+          cp WebGround/MiniGames/Breakout.html _site/Breakout/index.html
+
+          mkdir -p _site/FlappyBird
+          cp WebGround/MiniGames/FlappyBird.html _site/FlappyBird/index.html
+
+          mkdir -p _site/2048
+          cp WebGround/MiniGames/2048.html _site/2048/index.html
+
+          mkdir -p _site/MemoryGame
+          cp WebGround/MiniGames/MemoryGame.html _site/MemoryGame/index.html
+
+          mkdir -p _site/SpaceInvaders
+          cp WebGround/MiniGames/SpaceInvaders.html _site/SpaceInvaders/index.html
+
           mkdir -p _site/LeekFund
           # Copy LeekFund简易版.html to subdirectory and rename to index.html
           cp WebGround/SimplePage/LeekFund简易版.html _site/LeekFund/index.html
