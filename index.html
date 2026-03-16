@@ -1,351 +1,442 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Axu Playground</title>
+    <title>AXU Playground</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Anton&family=Permanent+Marker&display=swap');
+
         :root {
-            --text-main: #ffffff;
-            --text-muted: rgba(255, 255, 255, 0.7);
-            --bg-deep: #000000;
-            /* 鼠标坐标变量，由 JS 实时更新 */
+            /* 全新极致撞色板 */
+            --clash-black: #0d0d0d;
+            --clash-yellow: #ffe600;
+            --clash-cyan: #00f0ff;
+            --clash-pink: #ff0055;
+            --clash-white: #f0f0f0;
+            
             --mouse-x: 0;
             --mouse-y: 0;
+            --shake-x: 0px;
+            --shake-y: 0px;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            user-select: none;
         }
 
         body, html {
             width: 100%;
             height: 100%;
-            font-family: 'Helvetica Neue', 'Segoe UI', Arial, sans-serif;
-            background-color: var(--bg-deep);
-            color: var(--text-main);
-            overflow: hidden; /* 沉浸式全屏 */
-            perspective: 1000px;
+            font-family: 'Anton', 'Impact', sans-serif;
+            background-color: var(--clash-black);
+            color: var(--clash-white);
+            overflow: hidden;
+            perspective: 1500px;
         }
 
-        /* 全局噪点纹理，增加超现实质感 */
-        .noise-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 999;
-            opacity: 0.04;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-        }
-
-        /* 深空流体背景 */
-        .surreal-bg {
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            z-index: 0;
-            filter: blur(120px) saturate(150%);
-            /* 根据鼠标进行轻微的反向视差移动 */
-            transform: translate(calc(var(--mouse-x) * -3%), calc(var(--mouse-y) * -3%));
-            transition: transform 0.2s cubic-bezier(0.1, 0.5, 0.1, 1);
-            pointer-events: none;
-        }
-
-        .orb {
-            position: absolute;
-            border-radius: 50%;
-            mix-blend-mode: screen;
-            opacity: 0.5;
-            animation: orbFloat 25s infinite alternate ease-in-out;
-        }
-
-        /* 迷幻霓虹配色 */
-        .orb:nth-child(1) { top: 30%; left: 30%; width: 50vw; height: 50vw; background: #ff0055; animation-delay: 0s; }
-        .orb:nth-child(2) { top: 40%; right: 20%; width: 45vw; height: 45vw; background: #4a00e0; animation-delay: -5s; }
-        .orb:nth-child(3) { bottom: 10%; left: 40%; width: 60vw; height: 60vw; background: #00e5ff; animation-delay: -10s; }
-        .orb:nth-child(4) { top: 10%; right: 40%; width: 40vw; height: 40vw; background: #ffea00; animation-delay: -15s; opacity: 0.3; }
-
-        @keyframes orbFloat {
-            0% { transform: scale(1) translate(0, 0) rotate(0deg); }
-            33% { transform: scale(1.3) translate(15vw, -10vh) rotate(120deg); }
-            66% { transform: scale(0.8) translate(-10vw, 15vh) rotate(240deg); }
-            100% { transform: scale(1.1) translate(5vw, 5vh) rotate(360deg); }
-        }
-
-        /* 内容层 */
-        .scene {
-            position: relative;
-            z-index: 10;
+        /* 全局震动容器 */
+        #game-world {
             width: 100%;
             height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            /* 主容器正向视差 */
-            transform-style: preserve-3d;
-            transform: rotateX(calc(var(--mouse-y) * 10deg)) rotateY(calc(var(--mouse-x) * 10deg));
+            position: relative;
+            transform: translate(var(--shake-x), var(--shake-y));
+            transition: transform 0.05s ease-out;
         }
 
-        /* 标题组 */
-        .header {
-            text-align: center;
-            margin-bottom: 5rem;
-            transform: translateZ(80px); /* 3D 浮出效果 */
-            pointer-events: auto;
+        /* --- 撞色背景系统 --- */
+        .bg-layer {
+            position: absolute;
+            top: -20%;
+            left: -20%;
+            width: 140%;
+            height: 140%;
+            pointer-events: none;
+        }
+
+        /* 巨大的明黄斜切块 */
+        .slash-yellow {
+            background-color: var(--clash-yellow);
+            clip-path: polygon(0 100%, 0 0, 70% 0, 40% 100%);
+            z-index: 1;
+            transform: translate(calc(var(--mouse-x) * -2%), calc(var(--mouse-y) * -2%));
+        }
+
+        /* 巨大的青色锐角切块 */
+        .slash-cyan {
+            background-color: var(--clash-cyan);
+            clip-path: polygon(100% 0, 60% 0, 80% 100%, 100% 100%);
+            z-index: 1;
+            transform: translate(calc(var(--mouse-x) * 3%), calc(var(--mouse-y) * 3%));
+        }
+
+        /* 纯黑半调网点增加质感 */
+        .halftone {
+            background-image: radial-gradient(var(--clash-black) 25%, transparent 25%),
+                              radial-gradient(var(--clash-black) 25%, transparent 25%);
+            background-position: 0 0, 12px 12px;
+            background-size: 24px 24px;
+            opacity: 0.15;
+            z-index: 2;
+        }
+
+        /* 背景巨型涂鸦文字 */
+        .graffiti-text {
+            position: absolute;
+            font-family: 'Permanent Marker', cursive;
+            font-size: 20vw;
+            color: transparent;
+            -webkit-text-stroke: 4px rgba(255, 255, 255, 0.05);
+            z-index: 3;
+            transform: rotate(-10deg) translate(calc(var(--mouse-x) * 5%), calc(var(--mouse-y) * 5%));
+            white-space: nowrap;
+            top: 5%;
+            left: -10%;
+            pointer-events: none;
+        }
+
+        /* --- 标题 --- */
+        .header-container {
+            position: absolute;
+            top: 15%;
+            left: 5%;
+            z-index: 100;
+            transform: translate(calc(var(--mouse-x) * 4%), calc(var(--mouse-y) * 4%)) rotate(-4deg);
         }
 
         h1 {
-            font-size: 5rem;
-            font-weight: 900;
-            letter-spacing: -2px;
-            margin-bottom: 0.5rem;
+            font-size: 8rem;
+            line-height: 0.85;
             text-transform: uppercase;
-            background: linear-gradient(to right, #fff, #a3c2ff, #fff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--clash-white);
+            /* 采用粉/青的双重色差错位阴影 */
+            text-shadow: 
+                6px 6px 0 var(--clash-black),
+                12px 12px 0 var(--clash-pink),
+                -4px -4px 0 var(--clash-cyan);
+            letter-spacing: 2px;
             position: relative;
-            cursor: default;
+        }
+
+        h1 span {
+            color: var(--clash-yellow);
+            font-size: 6rem;
+            display: block;
+            margin-top: -5px;
+            text-shadow: 
+                5px 5px 0 var(--clash-black),
+                -3px -3px 0 var(--clash-cyan);
+            transform: rotate(2deg);
+        }
+
+        /* --- 动态弧形卡片系统 --- */
+        .archive-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 50;
+            transform: translate(calc(var(--mouse-x) * -2%), calc(var(--mouse-y) * -2%));
+        }
+
+        .card {
+            position: absolute;
+            top: 50%;
+            /* 锚点往右侧隐藏得深一点 */
+            right: -80px; 
+            left: auto;
+            /* 尺寸缩小到 0.8 倍 */
+            width: 960px;
+            height: 256px;
+            margin-top: -128px; /* 保持 Y 轴中心对齐 (height / 2) */
+            margin-left: 0;
+            background: var(--clash-black);
+            border: 8px solid var(--clash-white); /* 边框等比缩小 */
+            clip-path: polygon(0 0, 95% 5%, 100% 100%, 5% 95%);
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 2.4rem 4rem; /* 内边距等比缩小 */
+            transform-origin: 100% 50%; 
+            will-change: transform, opacity;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease, background 0.2s, border-color 0.2s;
+            box-shadow: -24px 24px 0 rgba(0,0,0,0.5); /* 阴影等比缩小 */
+        }
+
+        /* 卡片内部右侧撞色装饰块 */
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 65%;
+            background: var(--clash-cyan);
+            clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%);
+            z-index: 1;
             transition: all 0.3s ease;
         }
 
-        /* 标题悬停时的色散（Chromatic Aberration）故障效果 */
-        h1:hover {
-            text-shadow: 
-                -4px 0px 0px rgba(255, 0, 85, 0.8),
-                4px 0px 0px rgba(0, 229, 255, 0.8);
-            letter-spacing: 2px;
-        }
-
-        p.subtitle {
-            font-size: 1.2rem;
-            font-weight: 300;
-            color: var(--text-muted);
-            letter-spacing: 4px;
+        .card span.title {
+            position: relative;
+            z-index: 10;
+            color: var(--clash-white);
+            font-size: 6.8rem; /* 字体等比缩小 */
+            line-height: 1;
+            transform: rotate(-2deg);
             text-transform: uppercase;
+            text-shadow: 5px 5px 0 var(--clash-pink); 
+            transition: all 0.3s ease;
+            pointer-events: none;
         }
 
-        /* 项目传送门网格布局：不规则的有机排列 */
-        .portals-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 3rem;
-            justify-content: center;
-            max-width: 1000px;
-            padding: 0 2rem;
-            transform: translateZ(40px);
+        .card span.status {
+            position: absolute;
+            right: 8%;
+            top: 35%;
+            z-index: 10;
+            font-family: 'Permanent Marker', cursive;
+            font-size: 3.6rem; /* 状态文本等比缩小 */
+            color: var(--clash-black);
+            transform: rotate(10deg);
         }
 
-        /* 超现实流体按钮 (Liquid Glassmorphism) */
-        a.project-portal {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            color: #fff;
-            font-size: 1.5rem;
-            font-weight: bold;
-            letter-spacing: 1px;
-            width: 220px;
-            height: 220px;
-            text-align: center;
-            padding: 2rem;
-            
-            /* 玻璃拟物态 */
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 
-                0 20px 40px rgba(0, 0, 0, 0.4),
-                inset 0 0 20px rgba(255, 255, 255, 0.05);
-            
-            transition: border-color 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
-            position: relative;
-            overflow: hidden;
+        /* 动态高亮状态 */
+        .card.is-active {
+            background: var(--clash-white);
+            border-color: var(--clash-black);
+        }
+        
+        .card.is-active span.title {
+            color: var(--clash-black);
+            text-shadow: 5px 5px 0 var(--clash-cyan);
         }
 
-        /* 为不同的按钮添加各自的形状渐变(Morph)和浮动(Breathe)动画 */
-        a.project-portal:nth-child(1) { animation: morph1 7s infinite alternate ease-in-out, portalBreathe 6s infinite alternate ease-in-out 0s; }
-        a.project-portal:nth-child(2) { animation: morph2 8.5s infinite alternate ease-in-out, portalBreathe 7s infinite alternate ease-in-out -2s; }
-        a.project-portal:nth-child(3) { animation: morph3 7.5s infinite alternate ease-in-out, portalBreathe 6.5s infinite alternate ease-in-out -4s; }
-        a.project-portal:nth-child(4) { animation: morph4 9s infinite alternate ease-in-out, portalBreathe 8s infinite alternate ease-in-out -1s; }
-
-        /* 形状缓慢渐变的关键帧 */
-        @keyframes morph1 {
-            0% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
-            100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-        }
-        @keyframes morph2 {
-            0% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
-            100% { border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%; }
-        }
-        @keyframes morph3 {
-            0% { border-radius: 50% 50% 20% 80% / 25% 80% 20% 75%; }
-            100% { border-radius: 20% 80% 50% 50% / 75% 20% 80% 25%; }
-        }
-        @keyframes morph4 {
-            0% { border-radius: 80% 20% 50% 50% / 50% 50% 20% 80%; }
-            100% { border-radius: 50% 50% 80% 20% / 20% 80% 50% 50%; }
+        .card.is-active::after {
+            background: var(--clash-yellow);
         }
 
-        @keyframes portalBreathe {
-            0% { transform: translateY(0px) rotate(-2deg); }
-            100% { transform: translateY(-15px) rotate(3deg); }
+        .card.is-active span.status {
+            color: var(--clash-pink);
         }
 
-        /* 内部文字容器 */
-        a.project-portal span {
-            position: relative;
-            z-index: 2;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        /* 去除夸张的向左弹出，仅保留极其微小的悬停呼吸感 */
+        .card.is-active:hover {
+            transform: translateY(0) translateX(-20px) scale(1.02) rotate(0deg) !important;
         }
 
-        /* 悬停时：仅高亮边缘并轻微提亮，不再强制变方或停止动画 */
-        a.project-portal:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 
-                0 30px 60px rgba(0, 0, 0, 0.5),
-                0 0 30px rgba(255, 255, 255, 0.4),
-                inset 0 0 20px rgba(255, 255, 255, 0.3);
+        /* 闪光特效层 */
+        #flash-layer {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: var(--clash-white);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease-out;
+            mix-blend-mode: overlay;
         }
 
-        a.project-portal:hover span {
-            transform: scale(1.15);
-            letter-spacing: 2px;
-            text-shadow: 0 0 15px rgba(255,255,255,0.8);
-        }
+        /* 隐藏滚动条 */
+        ::-webkit-scrollbar { width: 0; }
 
-        /* 响应式调整 */
         @media (max-width: 768px) {
-            h1 { font-size: 3rem; }
-            .scene { transform: none; } /* 移动端关闭 3D 旋转防止眩晕 */
-            a.project-portal {
-                width: 160px;
-                height: 160px;
-                font-size: 1.1rem;
-                padding: 1rem;
-            }
+            h1 { font-size: 4.5rem; top: 5%; }
+            h1 span { font-size: 3.5rem; }
+            /* 移动端同步 0.8 倍缩放适配 */
+            .card { width: 85vw; height: 160px; right: -20px; padding: 1rem 1.5rem; margin-top: -80px; border-width: 5px; }
+            .card span.title { font-size: 2.8rem; }
+            .card span.status { font-size: 1.6rem; right: 12%; }
+            .card.is-active:hover { transform: translateY(0) translateX(-10px) scale(1.02) rotate(0deg) !important; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 顶层噪点滤镜 -->
-    <div class="noise-overlay"></div>
+    <div id="game-world">
+        <!-- 狂暴背景层 (黑/黄/青撞色) -->
+        <div class="bg-layer slash-yellow"></div>
+        <div class="bg-layer slash-cyan"></div>
+        <div class="bg-layer halftone"></div>
+        <div class="graffiti-text">PLAYGROUND PLAYGROUND</div>
 
-    <!-- 超现实背景层 -->
-    <div class="surreal-bg">
-        <div class="orb"></div>
-        <div class="orb"></div>
-        <div class="orb"></div>
-        <div class="orb"></div>
-    </div>
-
-    <!-- 3D 视差交互层 -->
-    <div class="scene" id="scene">
-        <div class="header">
-            <h1>Axu Playground</h1>
-            <p class="subtitle">Experimental Projects & Mini-Tools</p>
+        <!-- 标题 -->
+        <div class="header-container">
+            <h1>AXU<br><span>PLAYGROUND</span></h1>
         </div>
 
-        <div class="portals-container">
-            <a href="VoxelForgeV2/" class="project-portal">
-                <span>Voxel Forge</span>
-            </a>
-            <a href="VoxelEditor/" class="project-portal">
-                <span>Voxel Editor</span>
-            </a>
-            <a href="GameOfLife/" class="project-portal">
-                <span>Game of Life<br><small style="font-size:0.8em; opacity:0.7">(PC)</small></span>
-            </a>
-            <a href="GameOfLifeMobile/" class="project-portal">
-                <span>Game of Life<br><small style="font-size:0.8em; opacity:0.7">(Mobile)</small></span>
-            </a>
-            <a href="Snake/" class="project-portal">
-                <span>Snake</span>
-            </a>
-            <a href="Tetris/" class="project-portal">
-                <span>Tetris</span>
-            </a>
-            <a href="Pong/" class="project-portal">
-                <span>Pong</span>
-            </a>
-            <a href="TicTacToe/" class="project-portal">
-                <span>Tic-Tac-Toe</span>
-            </a>
-            <a href="Minesweeper/" class="project-portal">
-                <span>Minesweeper</span>
-            </a>
-            <a href="Breakout/" class="project-portal">
-                <span>Breakout</span>
-            </a>
-            <a href="FlappyBird/" class="project-portal">
-                <span>Flappy Bird</span>
-            </a>
-            <a href="2048/" class="project-portal">
-                <span>2048</span>
-            </a>
-            <a href="MemoryGame/" class="project-portal">
-                <span>Memory Game</span>
-            </a>
-            <a href="SpaceInvaders/" class="project-portal">
-                <span>Space Invaders</span>
-            </a>
+        <!-- 垂直存档卡片流 -->
+        <div class="archive-container" id="archive-list">
+            <!-- 动态注入 -->
         </div>
     </div>
+
+    <div id="flash-layer"></div>
 
     <script>
-        // 获取 CSS 变量作用域
-        const root = document.documentElement;
-        let requestRef;
-        
-        // 目标鼠标位置
-        let targetX = 0;
-        let targetY = 0;
-        
-        // 当前平滑插值后的位置
-        let currentX = 0;
-        let currentY = 0;
+        // --- 1. 数据配置 ---
+        const projects = [
+            { name: "VOXEL FORGE", link: "VoxelForgeV2/", status: "CLR" },
+            { name: "VOXEL EDITOR", link: "VoxelEditor/", status: "NEW" },
+            { name: "LIFE (PC)", link: "GameOfLife/", status: "CLR" },
+            { name: "LIFE (MOB)", link: "GameOfLifeMobile/", status: "NEW" },
+            { name: "SNAKE", link: "Snake/", status: "CLR" },
+            { name: "TETRIS", link: "Tetris/", status: "CLR" },
+            { name: "PONG", link: "Pong/", status: "CLR" },
+            { name: "TIC-TAC-TOE", link: "TicTacToe/", status: "NEW" },
+            { name: "MINESWEEPER", link: "Minesweeper/", status: "CLR" },
+            { name: "BREAKOUT", link: "Breakout/", status: "CLR" },
+            { name: "FLAPPY BIRD", link: "FlappyBird/", status: "NEW" },
+            { name: "2048", link: "2048/", status: "CLR" },
+            { name: "MEMORY", link: "MemoryGame/", status: "CLR" },
+            { name: "INVADERS", link: "SpaceInvaders/", status: "NEW" }
+        ];
 
-        // 监听鼠标移动，计算归一化坐标 (-1 到 1)
+        // --- 2. 核心右侧弧形轮播算法 ---
+        const archiveList = document.getElementById('archive-list');
+        const gameWorld = document.getElementById('game-world');
+        const flashLayer = document.getElementById('flash-layer');
+        let currentIndex = 0;
+        let isAnimating = false;
+
+        // 初始化卡片 DOM
+        projects.forEach((proj, index) => {
+            const a = document.createElement('a');
+            a.href = proj.link;
+            a.className = 'card';
+            // 去除黄色的 FILE 元素
+            a.innerHTML = `
+                <span class="title">${proj.name}</span>
+                <span class="status">${proj.status}</span>
+            `;
+            
+            a.addEventListener('click', (e) => {
+                if (index !== currentIndex) {
+                    e.preventDefault();
+                    const diff = index - currentIndex;
+                    if (Math.abs(diff) > projects.length / 2) {
+                        navigate(Math.sign(diff) * -1);
+                    } else {
+                        navigate(Math.sign(diff));
+                    }
+                }
+            });
+            archiveList.appendChild(a);
+        });
+
+        const cards = document.querySelectorAll('.card');
+
+        // 动态计算扇形弧度 (Parabolic Curve / 抛物线映射)
+        function updateCardsTransform() {
+            const total = cards.length;
+            cards.forEach((card, i) => {
+                let offset = i - currentIndex;
+                if (offset > total / 2) offset -= total;
+                if (offset < -total / 2) offset += total;
+
+                card.classList.remove('is-active');
+                card.style.pointerEvents = 'auto';
+
+                if (offset === 0) {
+                    // 【激活态】不再向左拔出，平稳停留在弧线的最顶点 (translateX: 0)
+                    card.classList.add('is-active');
+                    card.style.transform = `translateY(0px) translateX(0px) scale(1) rotate(0deg)`;
+                    card.style.zIndex = 50;
+                    card.style.opacity = 1;
+                } else {
+                    const sign = Math.sign(offset);
+                    const absOffset = Math.abs(offset);
+                    
+                    // 垂直间距扩散：同步缩小到 0.8 倍 (180 * 0.8 = 144)
+                    const yMove = offset * 144; 
+                    
+                    // X轴：向屏幕深处推入的力度同步缩小
+                    const xMove = Math.pow(absOffset, 1.5) * 40; 
+                    
+                    // 旋转：保持原有的完美扇形弧度
+                    const rotation = -offset * 12; 
+                    
+                    // 缩放透视
+                    const scale = Math.max(0.35, 1 - (absOffset * 0.12)); 
+                    
+                    card.style.transform = `translateY(${yMove}px) translateX(${xMove}px) scale(${scale}) rotate(${rotation}deg)`;
+                    card.style.zIndex = 40 - absOffset;
+                    
+                    card.style.opacity = Math.max(0, 1 - (absOffset * 0.2));
+                    if (absOffset > 5) {
+                        card.style.pointerEvents = 'none';
+                    }
+                }
+            });
+        }
+
+        // --- 3. 视觉反馈系统 ---
+        function screenShake() {
+            const intensity = 8;
+            const x = (Math.random() - 0.5) * intensity;
+            const y = (Math.random() - 0.5) * intensity;
+            gameWorld.style.setProperty('--shake-x', `${x}px`);
+            gameWorld.style.setProperty('--shake-y', `${y}px`);
+            setTimeout(() => {
+                gameWorld.style.setProperty('--shake-x', '0px');
+                gameWorld.style.setProperty('--shake-y', '0px');
+            }, 50);
+        }
+
+        function flashScreen() {
+            flashLayer.style.opacity = '1';
+            setTimeout(() => flashLayer.style.opacity = '0', 40);
+        }
+
+        function navigate(direction) {
+            if(isAnimating) return;
+            isAnimating = true;
+
+            screenShake();
+            if(Math.random() > 0.5) flashScreen(); 
+
+            const total = cards.length;
+            currentIndex = (currentIndex + direction + total) % total;
+            updateCardsTransform();
+
+            setTimeout(() => { isAnimating = false; }, 150);
+        }
+
+        // --- 4. 交互绑定 ---
+        document.addEventListener('wheel', (e) => {
+            if(e.deltaY > 0) navigate(1); 
+            else if(e.deltaY < 0) navigate(-1);
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowDown' || e.key === 's') navigate(1);
+            if(e.key === 'ArrowUp' || e.key === 'w') navigate(-1);
+            if(e.key === 'Enter') {
+                window.location.href = projects[currentIndex].link;
+            }
+        });
+
+        // 平滑鼠标视差
+        const root = document.documentElement;
+        let targetX = 0, targetY = 0, currentX = 0, currentY = 0;
         document.addEventListener('mousemove', (e) => {
             targetX = (e.clientX / window.innerWidth) * 2 - 1;
             targetY = (e.clientY / window.innerHeight) * 2 - 1;
         });
 
-        // 游戏程序员最熟悉的平滑插值 (Lerp) 更新循环
         function updateParallax() {
-            // 平滑系数，越大越灵敏，越小越滞后/顺滑
-            const lerpFactor = 0.05;
-            
-            currentX += (targetX - currentX) * lerpFactor;
-            currentY += (targetY - currentY) * lerpFactor;
-
-            // 将计算结果注入 CSS 变量
+            currentX += (targetX - currentX) * 0.05;
+            currentY += (targetY - currentY) * 0.05;
             root.style.setProperty('--mouse-x', currentX.toFixed(4));
             root.style.setProperty('--mouse-y', currentY.toFixed(4));
-
-            requestRef = requestAnimationFrame(updateParallax);
+            requestAnimationFrame(updateParallax);
         }
 
-        // 启动循环
+        // 初始化执行
+        updateCardsTransform();
         updateParallax();
-        
-        // 当鼠标离开窗口时，缓慢回正
-        document.addEventListener('mouseleave', () => {
-            targetX = 0;
-            targetY = 0;
-        });
     </script>
 </body>
 </html>
