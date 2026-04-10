@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "hUSQuyQSKkI=",
+  "success": true,
+  "projectFilePath": "d:\\ProjectMine\\AxuPlayground\\.minimax\\skills\\minimax-docx\\src\\DocForge.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\cielevel\\.nuget\\packages\\documentformat.openxml\\3.1.0\\documentformat.openxml.3.1.0.nupkg.sha512",
+    "C:\\Users\\cielevel\\.nuget\\packages\\documentformat.openxml.framework\\3.1.0\\documentformat.openxml.framework.3.1.0.nupkg.sha512",
+    "C:\\Users\\cielevel\\.nuget\\packages\\system.io.packaging\\8.0.0\\system.io.packaging.8.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
